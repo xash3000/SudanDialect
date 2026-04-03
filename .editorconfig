@@ -1,0 +1,61 @@
+# top-most EditorConfig file
+root = true
+
+##########################
+# All files
+##########################
+[*]
+# Use UTF-8 encoding
+charset = utf-8
+# Unix-style line endings
+end_of_line = lf
+# Trim trailing whitespace
+trim_trailing_whitespace = true
+# Ensure newline at end of file
+insert_final_newline = true
+# Max line length (for editors that support it)
+max_line_length = 100
+
+##########################
+# Indentation
+##########################
+# Default: spaces, 4-space indent
+[*]
+indent_style = space
+indent_size = 4
+
+##########################
+# Overrides for specific file types
+##########################
+
+# Markdown, YAML, JSON: 2-space indent
+[*.md]
+trim_trailing_whitespace = false
+
+[*.{yml,yaml,json}]
+indent_size = 2
+
+# JavaScript / TypeScript / JSX / TSX: 2-space indent
+[*.{js,jsx,ts,tsx}]
+indent_size = 2
+
+# XML, HTML, CSS: 2-space indent
+[*.{xml,html,css,scss,sass,less}]
+indent_size = 2
+
+# Shell scripts: tabs, 4-space tab width display
+[*.sh]
+indent_style = tab
+tab_width = 4
+
+# Makefiles must use tabs
+[Makefile]
+indent_style = tab
+
+# C# / .NET: 4-space indent (already default) but ensure UTF-8 BOM off
+[*.cs]
+insert_final_newline = true
+
+# Ignore binary files
+[*.{png,jpg,gif,ico,ttf,woff,woff2,zip,exe}]
+trim_trailing_whitespace = false

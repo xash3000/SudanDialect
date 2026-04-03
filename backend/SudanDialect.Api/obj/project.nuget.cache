@@ -1,0 +1,11 @@
+{
+  "version": 2,
+  "dgSpecHash": "SvuNbCPbBMg=",
+  "success": true,
+  "projectFilePath": "/home/xash/projects/SudanDialect/backend/SudanDialect.Api/SudanDialect.Api.csproj",
+  "expectedPackageFiles": [
+    "/home/xash/.nuget/packages/microsoft.aspnetcore.openapi/10.0.4/microsoft.aspnetcore.openapi.10.0.4.nupkg.sha512",
+    "/home/xash/.nuget/packages/microsoft.openapi/2.0.0/microsoft.openapi.2.0.0.nupkg.sha512"
+  ],
+  "logs": []
+}
