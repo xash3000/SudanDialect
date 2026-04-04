@@ -1,14 +1,15 @@
 .word-card {
   margin-top: 24px;
   padding: 20px;
-  border: 1px solid #dbe7ff;
+  border: 1px solid rgba(196, 154, 108, 0.9);
   border-radius: 14px;
-  background-color: #f8fbff;
+  background-color: var(--color-neutral);
+  box-shadow: 0 4px 14px rgba(58, 49, 46, 0.09);
 }
 
 .word-headword {
   margin: 0 0 12px;
-  color: #1a73e8;
+  color: var(--color-primary);
   font-size: 2rem;
   font-weight: 700;
   line-height: 1.2;
@@ -16,6 +17,7 @@
 
 .word-definition {
   margin: 0;
+  color: var(--color-text-main);
   font-size: 1.08rem;
   line-height: 1.9;
   white-space: pre-wrap;
@@ -24,10 +26,25 @@
 .definition-tag {
   position: relative;
   display: inline;
-  color: #1a73e8;
-  border-bottom: 1px dotted #1a73e8;
+  color: var(--color-primary);
+  border-bottom: 1px dotted var(--color-primary);
   cursor: help;
   outline: none;
+}
+
+.definition-tag.tag-primary {
+  color: var(--color-primary);
+  border-bottom-color: var(--color-primary);
+}
+
+.definition-tag.tag-secondary {
+  color: var(--color-secondary);
+  border-bottom-color: var(--color-secondary);
+}
+
+.definition-tag.tag-tertiary {
+  color: var(--color-tertiary);
+  border-bottom-color: var(--color-tertiary);
 }
 
 .definition-tooltip {
@@ -38,8 +55,8 @@
   max-width: min(360px, 85vw);
   padding: 10px 12px;
   border-radius: 8px;
-  background-color: #1f2937;
-  color: #ffffff;
+  background-color: var(--color-primary);
+  color: var(--color-neutral);
   font-size: 0.92rem;
   line-height: 1.55;
   white-space: normal;

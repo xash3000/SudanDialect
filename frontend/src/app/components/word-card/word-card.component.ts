@@ -3,7 +3,12 @@ import { WordSearchResult } from '../../models/word-search-result';
 
 type DefinitionPart =
   | { kind: 'text'; value: string }
-  | { kind: 'tag'; key: string; tooltip: string };
+  | { kind: 'tag'; key: string; tooltip: string; colorClass: string };
+
+const TAG_COLOR_CLASSES = ['tag-primary', 'tag-secondary', 'tag-tertiary'] as const;
+const FORCED_TAG_COLOR_CLASS_BY_KEY: Record<string, (typeof TAG_COLOR_CLASSES)[number]> = {
+  'س': 'tag-primary'
+};
 
 const TAG_TOOLTIP_BY_KEY: Record<string, string> = {
   'أر': 'أوروبية',
@@ -106,17 +111,24 @@ export class WordCardComponent implements OnChanges {
     const parts: DefinitionPart[] = [];
     let cursor = 0;
     let hasRecognizedTag = false;
+    let recognizedTagCount = 0;
 
     while (cursor < content.length) {
       const matchedKey = this.findMatchingKey(content, cursor);
       if (matchedKey) {
+        const forcedColorClass = FORCED_TAG_COLOR_CLASS_BY_KEY[matchedKey];
+        const colorClass = forcedColorClass ?? TAG_COLOR_CLASSES[recognizedTagCount % TAG_COLOR_CLASSES.length];
         parts.push({
           kind: 'tag',
           key: matchedKey,
-          tooltip: TAG_TOOLTIP_BY_KEY[matchedKey]
+          tooltip: TAG_TOOLTIP_BY_KEY[matchedKey],
+          colorClass
         });
         cursor += matchedKey.length;
         hasRecognizedTag = true;
+        if (!forcedColorClass) {
+          recognizedTagCount += 1;
+        }
         continue;
       }
 

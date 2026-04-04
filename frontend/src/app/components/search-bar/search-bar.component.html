@@ -1,16 +1,24 @@
 <div class="search-area">
-  <input
-    #searchInput
-    class="search-input"
-    type="text"
-    [value]="query"
-    (input)="onInput(($any($event.target)).value)"
-    (focus)="onFocus()"
-    (blur)="onBlur()"
-    placeholder="ابحث عن كلمة..."
-    autocomplete="off"
-    aria-label="حقل البحث"
-  />
+  <div class="search-input-wrap">
+    <input
+      #searchInput
+      class="search-input"
+      type="text"
+      [value]="query"
+      (input)="onInput(($any($event.target)).value)"
+      (focus)="onFocus()"
+      (blur)="onBlur()"
+      placeholder="ابحث عن كلمة..."
+      autocomplete="off"
+      aria-label="حقل البحث"
+    />
+
+    <span class="search-icon" aria-hidden="true">
+      <svg viewBox="0 0 24 24" focusable="false">
+        <path d="M10 4a6 6 0 1 1 0 12a6 6 0 0 1 0-12m0-2a8 8 0 1 0 4.9 14.3l4.4 4.4a1 1 0 0 0 1.4-1.4l-4.4-4.4A8 8 0 0 0 10 2z"></path>
+      </svg>
+    </span>
+  </div>
 
   @if (showDropdown) {
     <ul class="dropdown" role="listbox" aria-label="نتائج البحث">

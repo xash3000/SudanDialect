@@ -3,12 +3,19 @@
 @import "tailwindcss";
 
 :root {
-    --app-font-family: "Amiri", serif;
+  --app-font-family: "Amiri", serif;
+  --color-primary: #1b4d7e;
+  --color-secondary: #c49a6c;
+  --color-tertiary: #a0522d;
+  --color-neutral: #f0dbbf;
+  --color-text-main: #3a312e;
+  --color-text-muted: #746d68;
 }
+
 
 html,
 body {
-    font-family: var(--app-font-family);
+  font-family: var(--app-font-family);
 }
 
 *,
@@ -18,56 +25,56 @@ button,
 input,
 select,
 textarea {
-    font-family: inherit;
+  font-family: inherit;
 }
 
 .amiri-regular {
-    font-family: "Amiri", serif;
-    font-weight: 400;
-    font-style: normal;
+  font-family: "Amiri", serif;
+  font-weight: 400;
+  font-style: normal;
 }
 
 .amiri-bold {
-    font-family: "Amiri", serif;
-    font-weight: 700;
-    font-style: normal;
+  font-family: "Amiri", serif;
+  font-weight: 700;
+  font-style: normal;
 }
 
 .amiri-regular-italic {
-    font-family: "Amiri", serif;
-    font-weight: 400;
-    font-style: italic;
+  font-family: "Amiri", serif;
+  font-weight: 400;
+  font-style: italic;
 }
 
 .amiri-bold-italic {
-    font-family: "Amiri", serif;
-    font-weight: 700;
-    font-style: italic;
+  font-family: "Amiri", serif;
+  font-weight: 700;
+  font-style: italic;
 }
 
 button {
-    cursor: pointer;
+  cursor: pointer;
 }
 
 button:disabled {
-    cursor: not-allowed;
+  cursor: not-allowed;
 }
 
 /* Simple loading spinner */
 .spinner {
-    display: inline-block;
-    width: 16px;
-    height: 16px;
-    border: 2px solid rgba(255, 255, 255, 0.3);
-    border-radius: 50%;
-    border-top-color: #fff;
-    animation: spin 0.8s linear infinite;
-    margin-right: 8px;
-    vertical-align: middle;
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border: 2px solid rgba(255, 255, 255, 0.3);
+  border-radius: 50%;
+  border-top-color: #fff;
+  animation: spin 0.8s linear infinite;
+  margin-right: 8px;
+  vertical-align: middle;
 }
 
 @keyframes spin {
-    to {
-        transform: rotate(360deg);
-    }
+  to {
+    transform: rotate(360deg);
+  }
 }

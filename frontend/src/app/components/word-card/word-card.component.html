@@ -3,7 +3,14 @@
   <p class="word-definition">
     @for (part of definitionParts; track $index) {
       @if (part.kind === 'tag') {
-        <span class="definition-tag" tabindex="0" [attr.aria-label]="'اختصار ' + part.key + ': ' + part.tooltip">
+        <span
+          class="definition-tag"
+          [class.tag-primary]="part.colorClass === 'tag-primary'"
+          [class.tag-secondary]="part.colorClass === 'tag-secondary'"
+          [class.tag-tertiary]="part.colorClass === 'tag-tertiary'"
+          tabindex="0"
+          [attr.aria-label]="'اختصار ' + part.key + ': ' + part.tooltip"
+        >
           {{ part.key }}
           <span class="definition-tooltip" role="tooltip">{{ part.tooltip }}</span>
         </span>
