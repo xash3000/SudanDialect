@@ -21,6 +21,45 @@
   white-space: pre-wrap;
 }
 
+.definition-tag {
+  position: relative;
+  display: inline;
+  color: #1a73e8;
+  border-bottom: 1px dotted #1a73e8;
+  cursor: help;
+  outline: none;
+}
+
+.definition-tooltip {
+  position: absolute;
+  inset-inline-start: 0;
+  bottom: calc(100% + 8px);
+  min-width: 180px;
+  max-width: min(360px, 85vw);
+  padding: 10px 12px;
+  border-radius: 8px;
+  background-color: #1f2937;
+  color: #ffffff;
+  font-size: 0.92rem;
+  line-height: 1.55;
+  white-space: normal;
+  text-align: right;
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
+  opacity: 0;
+  visibility: hidden;
+  transform: translateY(4px);
+  transition: opacity 0.16s ease, transform 0.16s ease, visibility 0.16s ease;
+  pointer-events: none;
+  z-index: 10;
+}
+
+.definition-tag:hover .definition-tooltip,
+.definition-tag:focus .definition-tooltip {
+  opacity: 1;
+  visibility: visible;
+  transform: translateY(0);
+}
+
 @media (max-width: 600px) {
   .word-headword {
     font-size: 1.72rem;

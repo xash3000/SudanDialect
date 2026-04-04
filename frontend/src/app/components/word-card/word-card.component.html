@@ -1,4 +1,15 @@
 <article class="word-card">
   <h2 class="word-headword">{{ word.headword }}</h2>
-  <p class="word-definition">{{ word.definition }}</p>
+  <p class="word-definition">
+    @for (part of definitionParts; track $index) {
+      @if (part.kind === 'tag') {
+        <span class="definition-tag" tabindex="0" [attr.aria-label]="'اختصار ' + part.key + ': ' + part.tooltip">
+          {{ part.key }}
+          <span class="definition-tooltip" role="tooltip">{{ part.tooltip }}</span>
+        </span>
+      } @else {
+        <span>{{ part.value }}</span>
+      }
+    }
+  </p>
 </article>
