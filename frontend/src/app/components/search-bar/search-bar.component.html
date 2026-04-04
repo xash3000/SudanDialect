@@ -1,9 +1,12 @@
 <div class="search-area">
   <input
+    #searchInput
     class="search-input"
     type="text"
     [value]="query"
     (input)="onInput(($any($event.target)).value)"
+    (focus)="onFocus()"
+    (blur)="onBlur()"
     placeholder="ابحث عن كلمة..."
     autocomplete="off"
     aria-label="حقل البحث"
@@ -16,7 +19,7 @@
       }
 
       @for (word of results; track word.id) {
-        <li class="dropdown-item" (click)="selectWord(word)" role="option">
+        <li class="dropdown-item" (mousedown)="selectWord(word, $event)" role="option">
           {{ word.headword }}
         </li>
       }

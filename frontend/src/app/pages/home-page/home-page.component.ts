@@ -21,7 +21,10 @@ export class HomePageComponent implements OnDestroy {
   protected readonly results = signal<WordSearchResult[]>([]);
   protected readonly selectedWord = signal<WordSearchResult | null>(null);
   protected readonly isLoading = signal(false);
-  protected readonly showDropdown = signal(false);
+  protected readonly isInputFocused = signal(false);
+  protected readonly showDropdown = computed(() => {
+    return this.isInputFocused() && this.searchQuery().trim().length > 0;
+  });
   protected readonly hasRequestError = signal(false);
   protected readonly shouldShowNoResults = computed(() => {
     return (
@@ -54,7 +57,6 @@ export class HomePageComponent implements OnDestroy {
       .subscribe((results) => {
         this.results.set(results);
         this.isLoading.set(false);
-        this.showDropdown.set(this.searchQuery().trim().length > 0);
       });
   }
 
@@ -67,17 +69,23 @@ export class HomePageComponent implements OnDestroy {
       this.results.set([]);
       this.isLoading.set(false);
       this.hasRequestError.set(false);
-      this.showDropdown.set(false);
       return;
     }
 
-    this.showDropdown.set(true);
     this.searchInput$.next(trimmedQuery);
+  }
+
+  protected onSearchInputFocus(): void {
+    this.isInputFocused.set(true);
+  }
+
+  protected onSearchInputBlur(): void {
+    this.isInputFocused.set(false);
   }
 
   protected selectWord(word: WordSearchResult): void {
     this.selectedWord.set(word);
-    this.showDropdown.set(false);
+    this.isInputFocused.set(false);
   }
 
   ngOnDestroy(): void {
