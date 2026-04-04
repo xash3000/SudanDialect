@@ -2,6 +2,49 @@
 
 @import "tailwindcss";
 
+:root {
+    --app-font-family: "Amiri", serif;
+}
+
+html,
+body {
+    font-family: var(--app-font-family);
+}
+
+*,
+*::before,
+*::after,
+button,
+input,
+select,
+textarea {
+    font-family: inherit;
+}
+
+.amiri-regular {
+    font-family: "Amiri", serif;
+    font-weight: 400;
+    font-style: normal;
+}
+
+.amiri-bold {
+    font-family: "Amiri", serif;
+    font-weight: 700;
+    font-style: normal;
+}
+
+.amiri-regular-italic {
+    font-family: "Amiri", serif;
+    font-weight: 400;
+    font-style: italic;
+}
+
+.amiri-bold-italic {
+    font-family: "Amiri", serif;
+    font-weight: 700;
+    font-style: italic;
+}
+
 button {
     cursor: pointer;
 }
