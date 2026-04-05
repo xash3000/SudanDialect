@@ -16,6 +16,16 @@
 html,
 body {
   font-family: var(--app-font-family);
+  min-height: 100%;
+  margin: 0;
+  background-color: var(--color-neutral);
+  color: var(--color-text-main);
+}
+
+app-root {
+  display: block;
+  min-height: 100vh;
+  background-color: var(--color-neutral);
 }
 
 *,

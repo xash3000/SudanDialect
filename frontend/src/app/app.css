@@ -5,3 +5,38 @@
   color: var(--color-text-main);
   font-family: "Amiri", serif;
 }
+
+:host {
+  display: flex;
+  flex-direction: column;
+}
+
+.app-content {
+  flex: 1;
+}
+
+.app-footer {
+  border-top: 1px solid rgba(0, 0, 0, 0.12);
+  padding: 0.9rem 1rem;
+  margin-bottom: 2rem;
+  text-align: center;
+  background-color: var(--color-neutral);
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  line-height: 1.7;
+}
+
+.app-footer p {
+  margin: 0.2rem 0;
+}
+
+.app-footer a {
+  color: var(--color-primary);
+  text-decoration: none;
+  border-bottom: 1px solid rgba(27, 77, 126, 0.35);
+}
+
+.app-footer a:hover {
+  color: var(--color-tertiary);
+  border-bottom-color: var(--color-tertiary);
+}
