@@ -31,6 +31,35 @@ public sealed class WordRepository : IWordRepository
             .SingleOrDefaultAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<WordSearchResultDto>> GetActiveByFirstLetterAsync(
+        string rawLetter,
+        string normalizedLetter,
+        int take,
+        CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(rawLetter) || string.IsNullOrWhiteSpace(normalizedLetter))
+        {
+            return Array.Empty<WordSearchResultDto>();
+        }
+
+        return await _dbContext.Words
+            .AsNoTracking()
+            .Where(word => word.IsActive)
+            .Where(word =>
+                word.Headword.StartsWith(rawLetter)
+                || word.NormalizedHeadword.StartsWith(normalizedLetter))
+            .OrderBy(word => word.Headword)
+            .Take(take)
+            .Select(word => new WordSearchResultDto
+            {
+                Id = word.Id,
+                Headword = word.Headword,
+                Definition = word.Definition,
+                SimilarityScore = 1.0
+            })
+            .ToListAsync(cancellationToken);
+    }
+
     public async Task<IReadOnlyList<WordSearchResultDto>> SearchActiveByNormalizedQueryAsync(
         string normalizedQuery,
         int take,

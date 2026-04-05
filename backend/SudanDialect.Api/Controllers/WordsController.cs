@@ -56,4 +56,22 @@ public sealed class WordsController : ControllerBase
             return BadRequest(new { error = exception.Message });
         }
     }
+
+    [HttpGet("browse")]
+    [ProducesResponseType(typeof(IReadOnlyList<WordSearchResultDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<IReadOnlyList<WordSearchResultDto>>> BrowseByLetter(
+        [FromQuery] string? letter,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var results = await _wordService.BrowseByLetterAsync(letter, cancellationToken);
+            return Ok(results);
+        }
+        catch (ArgumentException exception)
+        {
+            return BadRequest(new { error = exception.Message });
+        }
+    }
 }

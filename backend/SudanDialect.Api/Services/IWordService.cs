@@ -6,5 +6,7 @@ public interface IWordService
 {
     Task<WordSearchResultDto?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<WordSearchResultDto>> BrowseByLetterAsync(string? rawLetter, CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<WordSearchResultDto>> SearchAsync(string? rawQuery, CancellationToken cancellationToken = default);
 }

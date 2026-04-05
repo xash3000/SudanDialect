@@ -1,6 +1,8 @@
 using SudanDialect.Api.Dtos;
 using SudanDialect.Api.Repositories;
 using SudanDialect.Api.Utilities;
+using System.Globalization;
+using System.Text.RegularExpressions;
 
 namespace SudanDialect.Api.Services;
 
@@ -8,6 +10,10 @@ public sealed class WordService : IWordService
 {
     private const int MaxQueryLength = 200;
     private const int MaxResults = 10;
+    private const int MaxBrowseResults = 10000;
+
+    private static readonly Regex ArabicLetterRegex = new("^[\\u0621-\\u064A]$", RegexOptions.Compiled);
+    private static readonly CompareInfo ArabicCompareInfo = CultureInfo.GetCultureInfo("ar").CompareInfo;
 
     private readonly IWordRepository _wordRepository;
 
@@ -51,5 +57,36 @@ public sealed class WordService : IWordService
             cancellationToken);
 
         return searchResults;
+    }
+
+    public async Task<IReadOnlyList<WordSearchResultDto>> BrowseByLetterAsync(string? rawLetter, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(rawLetter))
+        {
+            throw new ArgumentException("Letter is required.", nameof(rawLetter));
+        }
+
+        var trimmedLetter = rawLetter.Trim();
+        if (trimmedLetter.Length != 1 || !ArabicLetterRegex.IsMatch(trimmedLetter))
+        {
+            throw new ArgumentException("Letter must be a single Arabic character.", nameof(rawLetter));
+        }
+
+        var normalizedLetter = ArabicTextNormalizer.Normalize(trimmedLetter);
+        if (string.IsNullOrWhiteSpace(normalizedLetter))
+        {
+            return Array.Empty<WordSearchResultDto>();
+        }
+
+        var words = await _wordRepository.GetActiveByFirstLetterAsync(
+            trimmedLetter,
+            normalizedLetter,
+            MaxBrowseResults,
+            cancellationToken);
+
+        return words
+            .OrderBy(word => word.Headword, Comparer<string>.Create((first, second) =>
+                ArabicCompareInfo.Compare(first, second, CompareOptions.None)))
+            .ToList();
     }
 }

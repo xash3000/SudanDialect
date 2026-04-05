@@ -1,0 +1,61 @@
+<main class="browse-page" dir="rtl">
+  <section class="browse-section">
+    <h1 class="title">تصفح الكلمات حسب الحرف</h1>
+
+    <div class="letters-grid" role="list" aria-label="أحرف التصفح العربية">
+      @for (letter of letters; track letter) {
+        <button
+          type="button"
+          class="letter-button"
+          [class.active]="selectedLetter() === letter"
+          (click)="selectLetter(letter)"
+        >
+          {{ letter }}
+        </button>
+      }
+    </div>
+
+    @if (selectedLetter()) {
+      <h2 class="results-title">كلمات حرف {{ selectedLetter() }}</h2>
+    }
+
+    @if (isLoading()) {
+      <p class="status" role="status">جاري تحميل الكلمات...</p>
+    }
+
+    @if (hasError()) {
+      <p class="status error" role="alert">تعذر تحميل الكلمات. حاول مرة أخرى.</p>
+    }
+
+    @if (!isLoading() && !hasError() && selectedLetter() && words().length === 0) {
+      <p class="status">لا توجد كلمات متاحة لهذا الحرف حالياً.</p>
+    }
+
+    @if (!isLoading() && words().length > 0) {
+      <div class="words-list" role="list">
+        @for (word of words(); track word.id) {
+          <button type="button" class="word-link" (click)="selectWord(word)">
+            {{ word.headword }}
+          </button>
+        }
+      </div>
+    }
+
+  </section>
+</main>
+
+@if (selectedWord(); as word) {
+  <div class="word-overlay-backdrop" (click)="closeWordOverlay()">
+    <section
+      class="word-overlay-panel"
+      role="dialog"
+      aria-modal="true"
+      aria-label="تفاصيل الكلمة"
+      dir="rtl"
+      (click)="$event.stopPropagation()"
+    >
+      <button type="button" class="overlay-close" (click)="closeWordOverlay()">إغلاق</button>
+      <app-word-card [word]="word" />
+    </section>
+  </div>
+}

@@ -25,6 +25,18 @@ export class WordSearchService {
       .pipe(map((results) => this.sortBySimilarity(results)));
   }
 
+  browseByLetter(letter: string): Observable<WordSearchResult[]> {
+    const trimmedLetter = letter.trim();
+    if (!trimmedLetter) {
+      return of([]);
+    }
+
+    const params = new HttpParams().set('letter', trimmedLetter);
+    return this.http
+      .get<WordSearchResult[]>(`${environment.apiBaseUrl}/api/words/browse`, { params })
+      .pipe(map((results) => [...results].sort((first, second) => first.headword.localeCompare(second.headword, 'ar'))));
+  }
+
   private sortBySimilarity(results: WordSearchResult[]): WordSearchResult[] {
     return [...results].sort((first, second) => {
       const scoreDifference = second.similarityScore - first.similarityScore;
