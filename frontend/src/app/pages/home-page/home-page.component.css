@@ -20,6 +20,13 @@
   line-height: 1.2;
 }
 
+.word-load-error {
+  margin: 16px 0 0;
+  color: #a14d2d;
+  font-size: 1rem;
+  text-align: center;
+}
+
 @media (max-width: 600px) {
   .page {
     padding-top: 44px;

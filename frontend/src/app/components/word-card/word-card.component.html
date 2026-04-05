@@ -19,4 +19,51 @@
       }
     }
   </p>
+
+  <div class="word-actions">
+    <button class="share-trigger" type="button" (click)="openSharePopup()" title="مشاركة">
+      <i class="fas fa-share-alt"></i>
+      مشاركة
+    </button>
+  </div>
 </article>
+
+@if (isSharePopupOpen) {
+  <div class="share-popup-backdrop" (click)="closeSharePopup()">
+    <section
+      class="share-popup"
+      role="dialog"
+      aria-modal="true"
+      aria-label="مشاركة الكلمة"
+      (click)="$event.stopPropagation()"
+    >
+      <h3 class="share-title">مشاركة الكلمة</h3>
+      <p class="share-link" dir="ltr">{{ shareUrl }}</p>
+
+      <div class="share-actions-grid">
+        <button class="share-action" type="button" (click)="copyShareLink()" title="نسخ الرابط">
+          <i class="fas fa-copy"></i>
+          نسخ الرابط
+        </button>
+        <button class="share-action" type="button" (click)="shareOnFacebook()" title="شارك على فيسبوك">
+          <i class="fab fa-facebook"></i>
+          فيسبوك
+        </button>
+        <button class="share-action" type="button" (click)="shareOnTwitter()" title="شارك على تويتر">
+          <i class="fa-brands fa-x-twitter"></i>
+          تويتر/X
+        </button>
+        <button class="share-action" type="button" (click)="shareOnWhatsapp()" title="شارك على واتساب">
+          <i class="fab fa-whatsapp"></i>
+          واتساب
+        </button>
+      </div>
+
+      @if (copyFeedback()) {
+        <p class="share-feedback">{{ copyFeedback() }}</p>
+      }
+
+      <button class="share-close" type="button" (click)="closeSharePopup()">إغلاق</button>
+    </section>
+  </div>
+}

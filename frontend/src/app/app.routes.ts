@@ -7,6 +7,10 @@ export const routes: Routes = [
     component: HomePageComponent
   },
   {
+    path: 'word/:id',
+    component: HomePageComponent
+  },
+  {
     path: '**',
     redirectTo: ''
   }

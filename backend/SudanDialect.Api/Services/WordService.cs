@@ -16,6 +16,16 @@ public sealed class WordService : IWordService
         _wordRepository = wordRepository;
     }
 
+    public async Task<WordSearchResultDto?> GetByIdAsync(int id, CancellationToken cancellationToken = default)
+    {
+        if (id <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(id), "Word id must be a positive integer.");
+        }
+
+        return await _wordRepository.GetActiveByIdAsync(id, cancellationToken);
+    }
+
     public async Task<IReadOnlyList<WordSearchResultDto>> SearchAsync(string? rawQuery, CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(rawQuery))

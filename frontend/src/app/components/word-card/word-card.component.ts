@@ -1,4 +1,5 @@
-import { Component, Input, OnChanges, SimpleChanges } from '@angular/core';
+import { DOCUMENT } from '@angular/common';
+import { Component, Input, NgZone, OnChanges, SimpleChanges, inject, signal } from '@angular/core';
 import { WordSearchResult } from '../../models/word-search-result';
 
 type DefinitionPart =
@@ -57,14 +58,68 @@ const TAG_KEYS_SORTED = Object.keys(TAG_TOOLTIP_BY_KEY).sort((first, second) => 
   styleUrl: './word-card.component.css'
 })
 export class WordCardComponent implements OnChanges {
+  private readonly document = inject(DOCUMENT);
+  private readonly ngZone = inject(NgZone);
+
   @Input({ required: true }) word!: WordSearchResult;
 
   protected definitionParts: DefinitionPart[] = [];
+  protected isSharePopupOpen = false;
+  protected readonly copyFeedback = signal('');
+  private feedbackTimeout: number | undefined;
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['word']) {
       this.definitionParts = this.parseDefinition(this.word.definition);
+      this.isSharePopupOpen = false;
+      this.clearFeedback();
     }
+  }
+
+  protected openSharePopup(): void {
+    this.isSharePopupOpen = true;
+  }
+
+  protected closeSharePopup(): void {
+    this.isSharePopupOpen = false;
+  }
+
+  protected get shareUrl(): string {
+    return this.buildShareUrl();
+  }
+
+  protected copyShareLink(): void {
+    this.clearFeedback();
+    void this.copyText(this.shareUrl)
+      .then(() => {
+        this.ngZone.run(() => {
+          this.copyFeedback.set('تم نسخ الرابط.');
+          this.scheduleFeedbackClear();
+        });
+      })
+      .catch(() => {
+        this.ngZone.run(() => {
+          this.copyFeedback.set('تعذر نسخ الرابط تلقائياً.');
+          this.scheduleFeedbackClear();
+        });
+      });
+  }
+
+  protected shareOnFacebook(): void {
+    const url = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(this.shareUrl)}`;
+    this.openShareWindow(url);
+  }
+
+  protected shareOnTwitter(): void {
+    const text = this.getShareTemplate();
+    const url = `https://twitter.com/intent/tweet?url=${encodeURIComponent(this.shareUrl)}&text=${encodeURIComponent(text)}`;
+    this.openShareWindow(url);
+  }
+
+  protected shareOnWhatsapp(): void {
+    const text = `${this.getShareTemplate()} ${this.shareUrl}`;
+    const url = `https://wa.me/?text=${encodeURIComponent(text)}`;
+    this.openShareWindow(url);
   }
 
   private parseDefinition(definition: string): DefinitionPart[] {
@@ -175,5 +230,57 @@ export class WordCardComponent implements OnChanges {
     }
 
     return /[\s،,;؛/|+.-]/.test(char);
+  }
+
+  private getShareTemplate(): string {
+    return `معنى كلمة ${this.word.headword} في قاموس اللهجة السودانية`;
+  }
+
+  private buildShareUrl(): string {
+    const baseUrl = this.document.baseURI;
+    return new URL(`word/${this.word.id}`, baseUrl).toString();
+  }
+
+  private openShareWindow(url: string): void {
+    const defaultView = this.document.defaultView;
+    if (!defaultView) {
+      return;
+    }
+
+    defaultView.open(url, '_blank', 'noopener,noreferrer');
+  }
+
+  private clearFeedback(): void {
+    if (this.feedbackTimeout !== undefined) {
+      clearTimeout(this.feedbackTimeout);
+    }
+    this.copyFeedback.set('');
+  }
+
+  private scheduleFeedbackClear(): void {
+    if (this.feedbackTimeout !== undefined) {
+      clearTimeout(this.feedbackTimeout);
+    }
+    this.feedbackTimeout = window.setTimeout(() => {
+      this.copyFeedback.set('');
+    }, 4500);
+  }
+
+  private async copyText(value: string): Promise<void> {
+    const clipboard = this.document.defaultView?.navigator.clipboard;
+    if (clipboard?.writeText) {
+      await clipboard.writeText(value);
+      return;
+    }
+
+    const textarea = this.document.createElement('textarea');
+    textarea.value = value;
+    textarea.style.position = 'fixed';
+    textarea.style.opacity = '0';
+    this.document.body.appendChild(textarea);
+    textarea.focus();
+    textarea.select();
+    this.document.execCommand('copy');
+    this.document.body.removeChild(textarea);
   }
 }

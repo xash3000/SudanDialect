@@ -4,6 +4,8 @@ namespace SudanDialect.Api.Repositories;
 
 public interface IWordRepository
 {
+    Task<WordSearchResultDto?> GetActiveByIdAsync(int id, CancellationToken cancellationToken = default);
+
     Task<IReadOnlyList<WordSearchResultDto>> SearchActiveByNormalizedQueryAsync(
         string normalizedQuery,
         int take,

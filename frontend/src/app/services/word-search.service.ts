@@ -9,6 +9,10 @@ import { WordSearchResult } from '../models/word-search-result';
 export class WordSearchService {
   private readonly http = inject(HttpClient);
 
+  getById(id: number): Observable<WordSearchResult> {
+    return this.http.get<WordSearchResult>(`${environment.apiBaseUrl}/api/words/${id}`);
+  }
+
   search(query: string): Observable<WordSearchResult[]> {
     const trimmedQuery = query.trim();
     if (!trimmedQuery) {

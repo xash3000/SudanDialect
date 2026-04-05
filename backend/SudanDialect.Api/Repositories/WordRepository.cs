@@ -16,6 +16,21 @@ public sealed class WordRepository : IWordRepository
         _dbContext = dbContext;
     }
 
+    public async Task<WordSearchResultDto?> GetActiveByIdAsync(int id, CancellationToken cancellationToken = default)
+    {
+        return await _dbContext.Words
+            .AsNoTracking()
+            .Where(word => word.IsActive && word.Id == id)
+            .Select(word => new WordSearchResultDto
+            {
+                Id = word.Id,
+                Headword = word.Headword,
+                Definition = word.Definition,
+                SimilarityScore = 1.0
+            })
+            .SingleOrDefaultAsync(cancellationToken);
+    }
+
     public async Task<IReadOnlyList<WordSearchResultDto>> SearchActiveByNormalizedQueryAsync(
         string normalizedQuery,
         int take,

@@ -23,6 +23,118 @@
   white-space: pre-wrap;
 }
 
+.word-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 14px;
+}
+
+.share-trigger {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  height: 34px;
+  padding: 0 14px;
+  border: 1px solid rgba(27, 77, 126, 0.35);
+  border-radius: 999px;
+  background: rgba(27, 77, 126, 0.08);
+  color: var(--color-primary);
+  font-size: 0.9rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.share-trigger:hover {
+  background: rgba(27, 77, 126, 0.14);
+}
+
+.share-trigger i {
+  font-size: 1rem;
+}
+
+.share-popup-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(23, 24, 25, 0.28);
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  z-index: 80;
+}
+
+.share-popup {
+  width: min(640px, calc(100vw - 22px));
+  margin: 0 0 14px;
+  padding: 16px;
+  border: 1px solid rgba(196, 154, 108, 0.9);
+  border-radius: 14px;
+  background: var(--color-neutral);
+  box-shadow: 0 -2px 20px rgba(0, 0, 0, 0.18);
+}
+
+.share-title {
+  margin: 0;
+  font-size: 1.16rem;
+  color: var(--color-primary);
+}
+
+.share-link {
+  margin: 8px 0 12px;
+  padding: 8px 10px;
+  background: rgba(255, 255, 255, 0.45);
+  border-radius: 8px;
+  color: var(--color-text-main);
+  font-size: 0.9rem;
+  overflow-wrap: anywhere;
+}
+
+.share-actions-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 8px;
+}
+
+.share-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  height: 38px;
+  border: 1px solid rgba(27, 77, 126, 0.2);
+  border-radius: 10px;
+  background: #fff;
+  color: var(--color-text-main);
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.share-action:hover {
+  border-color: rgba(27, 77, 126, 0.42);
+}
+
+.share-action i {
+  font-size: 1.15rem;
+}
+
+.share-feedback {
+  margin: 10px 0 0;
+  color: var(--color-primary);
+  font-size: 0.92rem;
+}
+
+.share-close {
+  margin-top: 12px;
+  width: 100%;
+  height: 40px;
+  border: 1px solid transparent;
+  border-radius: 10px;
+  background: var(--color-primary);
+  color: #fff;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+}
+
 .definition-tag {
   position: relative;
   display: inline;
@@ -80,5 +192,15 @@
 @media (max-width: 600px) {
   .word-headword {
     font-size: 1.72rem;
+  }
+
+  .share-popup {
+    width: calc(100vw - 14px);
+    margin-bottom: 8px;
+    border-radius: 12px;
+  }
+
+  .share-actions-grid {
+    grid-template-columns: repeat(2, 1fr);
   }
 }

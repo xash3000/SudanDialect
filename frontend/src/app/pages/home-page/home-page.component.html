@@ -18,5 +18,9 @@
     @if (selectedWord(); as word) {
       <app-word-card [word]="word" />
     }
+
+    @if (hasWordLoadError()) {
+      <p class="word-load-error" role="alert">تعذر تحميل الكلمة المطلوبة من الرابط.</p>
+    }
   </section>
 </main>

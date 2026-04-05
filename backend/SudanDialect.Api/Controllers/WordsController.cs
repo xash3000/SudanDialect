@@ -15,6 +15,30 @@ public sealed class WordsController : ControllerBase
         _wordService = wordService;
     }
 
+    [HttpGet("{id:int}")]
+    [ProducesResponseType(typeof(WordSearchResultDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<WordSearchResultDto>> GetById(
+        [FromRoute] int id,
+        CancellationToken cancellationToken)
+    {
+        try
+        {
+            var word = await _wordService.GetByIdAsync(id, cancellationToken);
+            if (word is null)
+            {
+                return NotFound();
+            }
+
+            return Ok(word);
+        }
+        catch (ArgumentOutOfRangeException exception)
+        {
+            return BadRequest(new { error = exception.Message });
+        }
+    }
+
     [HttpGet("search")]
     [ProducesResponseType(typeof(IReadOnlyList<WordSearchResultDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
