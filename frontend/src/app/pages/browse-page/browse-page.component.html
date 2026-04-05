@@ -17,6 +17,10 @@
 
     @if (selectedLetter()) {
       <h2 class="results-title">كلمات حرف {{ selectedLetter() }}</h2>
+
+      @if (!isLoading() && !hasError() && totalCount() > 0) {
+        <p class="results-meta">عدد الكلمات: {{ totalCount() }} | الصفحة {{ currentPage() }} من {{ totalPages() }}</p>
+      }
     }
 
     @if (isLoading()) {
@@ -39,6 +43,22 @@
           </button>
         }
       </div>
+
+      @if (totalPages() > 1) {
+        <div class="pagination-controls">
+          @for (page of pageNumbers(); track page) {
+            <button
+              type="button"
+              class="pagination-button"
+              [class.active]="currentPage() === page"
+              [disabled]="isLoading()"
+              (click)="goToPage(page)"
+            >
+              {{ page }}
+            </button>
+          }
+        </div>
+      }
     }
 
   </section>

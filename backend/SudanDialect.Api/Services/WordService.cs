@@ -10,7 +10,8 @@ public sealed class WordService : IWordService
 {
     private const int MaxQueryLength = 200;
     private const int MaxResults = 10;
-    private const int MaxBrowseResults = 10000;
+    private const int MaxBrowseResults = 20000;
+    private const int MaxBrowsePageSize = 200;
 
     private static readonly Regex ArabicLetterRegex = new("^[\\u0621-\\u064A]$", RegexOptions.Compiled);
     private static readonly CompareInfo ArabicCompareInfo = CultureInfo.GetCultureInfo("ar").CompareInfo;
@@ -59,11 +60,25 @@ public sealed class WordService : IWordService
         return searchResults;
     }
 
-    public async Task<IReadOnlyList<WordSearchResultDto>> BrowseByLetterAsync(string? rawLetter, CancellationToken cancellationToken = default)
+    public async Task<WordBrowsePageDto> BrowseByLetterAsync(
+        string? rawLetter,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(rawLetter))
         {
             throw new ArgumentException("Letter is required.", nameof(rawLetter));
+        }
+
+        if (page <= 0)
+        {
+            throw new ArgumentOutOfRangeException(nameof(page), "Page must be a positive integer.");
+        }
+
+        if (pageSize <= 0 || pageSize > MaxBrowsePageSize)
+        {
+            throw new ArgumentOutOfRangeException(nameof(pageSize), $"Page size must be between 1 and {MaxBrowsePageSize}.");
         }
 
         var trimmedLetter = rawLetter.Trim();
@@ -75,7 +90,14 @@ public sealed class WordService : IWordService
         var normalizedLetter = ArabicTextNormalizer.Normalize(trimmedLetter);
         if (string.IsNullOrWhiteSpace(normalizedLetter))
         {
-            return Array.Empty<WordSearchResultDto>();
+            return new WordBrowsePageDto
+            {
+                Items = [],
+                Page = page,
+                PageSize = pageSize,
+                TotalCount = 0,
+                TotalPages = 0
+            };
         }
 
         var words = await _wordRepository.GetActiveByFirstLetterAsync(
@@ -84,9 +106,40 @@ public sealed class WordService : IWordService
             MaxBrowseResults,
             cancellationToken);
 
-        return words
+        var sortedWords = words
             .OrderBy(word => word.Headword, Comparer<string>.Create((first, second) =>
                 ArabicCompareInfo.Compare(first, second, CompareOptions.None)))
             .ToList();
+
+        var totalCount = sortedWords.Count;
+        var totalPages = totalCount == 0 ? 0 : (int)Math.Ceiling(totalCount / (double)pageSize);
+
+        if (totalPages == 0)
+        {
+            return new WordBrowsePageDto
+            {
+                Items = [],
+                Page = 1,
+                PageSize = pageSize,
+                TotalCount = 0,
+                TotalPages = 0
+            };
+        }
+
+        var boundedPage = Math.Min(page, totalPages);
+        var skip = (boundedPage - 1) * pageSize;
+        var pagedItems = sortedWords
+            .Skip(skip)
+            .Take(pageSize)
+            .ToList();
+
+        return new WordBrowsePageDto
+        {
+            Items = pagedItems,
+            Page = boundedPage,
+            PageSize = pageSize,
+            TotalCount = totalCount,
+            TotalPages = totalPages
+        };
     }
 }

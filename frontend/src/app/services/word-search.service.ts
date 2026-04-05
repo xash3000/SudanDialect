@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
+import { WordBrowsePage } from '../models/word-browse-page';
 import { WordSearchResult } from '../models/word-search-result';
 
 @Injectable({ providedIn: 'root' })
@@ -25,16 +26,31 @@ export class WordSearchService {
       .pipe(map((results) => this.sortBySimilarity(results)));
   }
 
-  browseByLetter(letter: string): Observable<WordSearchResult[]> {
+  browseByLetter(letter: string, page: number, pageSize: number): Observable<WordBrowsePage> {
     const trimmedLetter = letter.trim();
     if (!trimmedLetter) {
-      return of([]);
+      return of({
+        items: [],
+        page: 1,
+        pageSize,
+        totalCount: 0,
+        totalPages: 0
+      });
     }
 
-    const params = new HttpParams().set('letter', trimmedLetter);
+    const params = new HttpParams()
+      .set('letter', trimmedLetter)
+      .set('page', page)
+      .set('pageSize', pageSize);
+
     return this.http
-      .get<WordSearchResult[]>(`${environment.apiBaseUrl}/api/words/browse`, { params })
-      .pipe(map((results) => [...results].sort((first, second) => first.headword.localeCompare(second.headword, 'ar'))));
+      .get<WordBrowsePage>(`${environment.apiBaseUrl}/api/words/browse`, { params })
+      .pipe(
+        map((response) => ({
+          ...response,
+          items: [...response.items].sort((first, second) => first.headword.localeCompare(second.headword, 'ar'))
+        }))
+      );
   }
 
   private sortBySimilarity(results: WordSearchResult[]): WordSearchResult[] {

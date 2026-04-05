@@ -58,15 +58,17 @@ public sealed class WordsController : ControllerBase
     }
 
     [HttpGet("browse")]
-    [ProducesResponseType(typeof(IReadOnlyList<WordSearchResultDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(WordBrowsePageDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<IReadOnlyList<WordSearchResultDto>>> BrowseByLetter(
+    public async Task<ActionResult<WordBrowsePageDto>> BrowseByLetter(
         [FromQuery] string? letter,
-        CancellationToken cancellationToken)
+        CancellationToken cancellationToken,
+        [FromQuery] int page = 1,
+        [FromQuery] int pageSize = 80)
     {
         try
         {
-            var results = await _wordService.BrowseByLetterAsync(letter, cancellationToken);
+            var results = await _wordService.BrowseByLetterAsync(letter, page, pageSize, cancellationToken);
             return Ok(results);
         }
         catch (ArgumentException exception)
