@@ -26,6 +26,10 @@ export const routes: Routes = [
     component: AboutPageComponent
   },
   {
+    path: 'admin',
+    loadChildren: () => import('./admin/admin.routes').then((module) => module.adminRoutes)
+  },
+  {
     path: '**',
     redirectTo: ''
   }

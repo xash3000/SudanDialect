@@ -1,0 +1,46 @@
+<section class="login-page" dir="rtl">
+  <div class="login-card">
+    <header>
+      <p class="eyebrow">Admin Access</p>
+      <h1>تسجيل دخول المشرف</h1>
+      <p>استخدم اسم المستخدم وكلمة المرور للوصول إلى لوحة إدارة القاموس.</p>
+    </header>
+
+    <form [formGroup]="loginForm" (ngSubmit)="submit()" novalidate>
+      <label for="username">اسم المستخدم</label>
+      <input
+        id="username"
+        type="text"
+        formControlName="username"
+        autocomplete="username"
+        placeholder="ادخل اسم المستخدم"
+      />
+      @if (loginForm.controls.username.touched && loginForm.controls.username.invalid) {
+        <small class="validation-message">اسم المستخدم مطلوب (3 أحرف على الأقل).</small>
+      }
+
+      <label for="password">كلمة المرور</label>
+      <input
+        id="password"
+        type="password"
+        formControlName="password"
+        autocomplete="current-password"
+        placeholder="ادخل كلمة المرور"
+      />
+      @if (loginForm.controls.password.touched && loginForm.controls.password.invalid) {
+        <small class="validation-message">كلمة المرور مطلوبة (8 أحرف على الأقل).</small>
+      }
+
+      @if (errorMessage()) {
+        <p class="error-message" role="alert">{{ errorMessage() }}</p>
+      }
+
+      <button type="submit" [disabled]="isSubmitting()">
+        @if (isSubmitting()) {
+          <span class="spinner" aria-hidden="true"></span>
+        }
+        تسجيل الدخول
+      </button>
+    </form>
+  </div>
+</section>

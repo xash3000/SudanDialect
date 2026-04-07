@@ -1,7 +1,7 @@
-import { WordSearchResult } from './word-search-result';
+import { Word } from './word';
 
 export type WordBrowsePage = {
-    items: WordSearchResult[];
+    items: Word[];
     page: number;
     pageSize: number;
     totalCount: number;

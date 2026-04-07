@@ -1,5 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { Component, Input, NgZone, OnChanges, SimpleChanges, inject, signal } from '@angular/core';
+import { Word } from '../../models/word';
 import { WordSearchResult } from '../../models/word-search-result';
 
 type DefinitionPart =
@@ -61,7 +62,7 @@ export class WordCardComponent implements OnChanges {
   private readonly document = inject(DOCUMENT);
   private readonly ngZone = inject(NgZone);
 
-  @Input({ required: true }) word!: WordSearchResult;
+  @Input({ required: true }) word!: WordSearchResult | Word;
 
   protected definitionParts: DefinitionPart[] = [];
   protected isSharePopupOpen = false;

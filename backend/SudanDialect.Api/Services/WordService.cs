@@ -1,5 +1,6 @@
 using SudanDialect.Api.Dtos;
-using SudanDialect.Api.Repositories;
+using SudanDialect.Api.Interfaces.Repositories;
+using SudanDialect.Api.Interfaces.Services;
 using SudanDialect.Api.Utilities;
 using System.Globalization;
 using System.Text.RegularExpressions;
@@ -60,7 +61,7 @@ public sealed class WordService : IWordService
         return searchResults;
     }
 
-    public async Task<WordBrowsePageDto> BrowseByLetterAsync(
+    public async Task<WordPageDto> BrowseByLetterAsync(
         string? rawLetter,
         int page,
         int pageSize,
@@ -90,7 +91,7 @@ public sealed class WordService : IWordService
         var normalizedLetter = ArabicTextNormalizer.Normalize(trimmedLetter);
         if (string.IsNullOrWhiteSpace(normalizedLetter))
         {
-            return new WordBrowsePageDto
+            return new WordPageDto
             {
                 Items = [],
                 Page = page,
@@ -116,7 +117,7 @@ public sealed class WordService : IWordService
 
         if (totalPages == 0)
         {
-            return new WordBrowsePageDto
+            return new WordPageDto
             {
                 Items = [],
                 Page = 1,
@@ -133,7 +134,7 @@ public sealed class WordService : IWordService
             .Take(pageSize)
             .ToList();
 
-        return new WordBrowsePageDto
+        return new WordPageDto
         {
             Items = pagedItems,
             Page = boundedPage,

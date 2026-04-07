@@ -1,0 +1,44 @@
+<div class="admin-shell" dir="rtl">
+  <aside class="admin-sidebar" aria-label="القائمة الجانبية">
+    <div class="brand-block">
+      <p class="brand-caption">لوحة الإدارة</p>
+      <h2>قاموس اللهجة السودانية</h2>
+    </div>
+
+    <nav class="side-nav" aria-label="روابط الإدارة">
+      <a routerLink="/admin/dashboard" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        نظرة عامة
+      </a>
+      <a routerLink="/admin/words" routerLinkActive="active" [routerLinkActiveOptions]="{ exact: true }">
+        إدارة الكلمات
+      </a>
+      <a routerLink="/admin/settings" routerLinkActive="active">
+        الإعدادات
+      </a>
+    </nav>
+
+    <button type="button" class="logout-button" (click)="logout()">تسجيل الخروج</button>
+  </aside>
+
+  <main class="admin-main">
+    <header class="admin-header">
+      <h1>لوحة التحكم</h1>
+      <p>مرحباً، {{ username() }}</p>
+    </header>
+
+    <section class="admin-content">
+      <router-outlet />
+    </section>
+  </main>
+</div>
+
+<div class="toast-host" dir="rtl" aria-live="polite" aria-atomic="true">
+  @for (toast of toasts(); track toast.id) {
+    <div class="toast-item" [class.success]="toast.type === 'success'" [class.error]="toast.type === 'error'">
+      <span>{{ toast.message }}</span>
+      <button type="button" class="toast-close" (click)="dismissToast(toast.id)" aria-label="إغلاق">
+        ×
+      </button>
+    </div>
+  }
+</div>

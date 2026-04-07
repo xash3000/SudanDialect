@@ -1,0 +1,84 @@
+:host {
+    display: block;
+}
+
+.dashboard-page {
+    display: grid;
+    gap: 14px;
+}
+
+.section-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.section-header h2 {
+    margin: 0;
+    color: #183651;
+}
+
+.section-header button {
+    border: 1px solid rgba(27, 77, 126, 0.3);
+    border-radius: 10px;
+    background-color: #fff;
+    color: #1b4d7e;
+    padding: 8px 12px;
+}
+
+.metric-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.metric-card {
+    border-radius: 14px;
+    padding: 14px;
+    border: 1px solid;
+    background-color: #fff;
+    box-shadow: 0 8px 20px rgba(27, 77, 126, 0.08);
+}
+
+.metric-card p {
+    margin: 0;
+    color: #5d6f7d;
+}
+
+.metric-card strong {
+    margin-top: 8px;
+    display: block;
+    font-size: 2rem;
+}
+
+.metric-card.total {
+    border-color: rgba(27, 77, 126, 0.3);
+}
+
+.metric-card.active {
+    border-color: rgba(40, 122, 80, 0.3);
+}
+
+.metric-card.inactive {
+    border-color: rgba(164, 59, 48, 0.32);
+}
+
+.state-message {
+    margin: 0;
+    border-radius: 10px;
+    padding: 10px 12px;
+    background-color: #fff;
+    border: 1px solid rgba(27, 77, 126, 0.2);
+}
+
+.state-message.error {
+    border-color: rgba(164, 59, 48, 0.3);
+    color: #a43b30;
+}
+
+@media (max-width: 800px) {
+    .metric-grid {
+        grid-template-columns: 1fr;
+    }
+}

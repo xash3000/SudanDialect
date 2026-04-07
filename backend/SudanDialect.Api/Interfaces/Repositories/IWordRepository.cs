@@ -1,12 +1,13 @@
 using SudanDialect.Api.Dtos;
+using SudanDialect.Api.Models;
 
-namespace SudanDialect.Api.Repositories;
+namespace SudanDialect.Api.Interfaces.Repositories;
 
 public interface IWordRepository
 {
     Task<WordSearchResultDto?> GetActiveByIdAsync(int id, CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyList<WordSearchResultDto>> GetActiveByFirstLetterAsync(
+    Task<IReadOnlyList<Word>> GetActiveByFirstLetterAsync(
         string rawLetter,
         string normalizedLetter,
         int take,

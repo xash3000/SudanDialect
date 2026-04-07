@@ -1,0 +1,124 @@
+:host {
+    display: block;
+}
+
+.word-form-page {
+    display: grid;
+    gap: 12px;
+}
+
+.page-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 10px;
+}
+
+.page-header h2 {
+    margin: 0;
+    color: #183651;
+}
+
+.word-form {
+    border: 1px solid rgba(27, 77, 126, 0.2);
+    border-radius: 12px;
+    background-color: #fff;
+    padding: 14px;
+    display: grid;
+    gap: 12px;
+}
+
+.field-group {
+    display: grid;
+    gap: 6px;
+}
+
+label {
+    font-weight: 700;
+    color: #1e3f59;
+}
+
+input[type='text'],
+textarea {
+    border: 1px solid rgba(27, 77, 126, 0.26);
+    border-radius: 10px;
+    padding: 10px 12px;
+    font-size: 0.97rem;
+    background-color: #fff;
+}
+
+input[type='text']:focus,
+textarea:focus {
+    outline: none;
+    border-color: #1b4d7e;
+    box-shadow: 0 0 0 3px rgba(27, 77, 126, 0.16);
+}
+
+textarea {
+    resize: vertical;
+}
+
+.checkbox-field {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-weight: 400;
+}
+
+.form-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+button.primary,
+button.secondary {
+    border-radius: 8px;
+    min-height: 38px;
+    padding: 0 14px;
+    border: 1px solid;
+}
+
+button.primary {
+    border-color: #1b4d7e;
+    background-color: #1b4d7e;
+    color: #fff;
+}
+
+button.secondary {
+    border-color: rgba(27, 77, 126, 0.32);
+    background-color: #fff;
+    color: #1b4d7e;
+}
+
+.validation {
+    color: #a43b30;
+}
+
+.error-message,
+.loading-message {
+    margin: 0;
+    border-radius: 10px;
+    padding: 8px 10px;
+}
+
+.error-message {
+    color: #a43b30;
+    border: 1px solid rgba(164, 59, 48, 0.3);
+    background-color: rgba(164, 59, 48, 0.08);
+}
+
+.loading-message {
+    border: 1px solid rgba(27, 77, 126, 0.22);
+    background-color: #fff;
+    color: #1b4d7e;
+}
+
+@media (max-width: 700px) {
+
+    .page-header,
+    .form-actions {
+        flex-direction: column;
+        align-items: stretch;
+    }
+}

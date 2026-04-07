@@ -1,7 +1,7 @@
 import { Component, inject, signal } from '@angular/core';
 import { catchError, of } from 'rxjs';
 import { WordCardComponent } from '../../components/word-card/word-card.component';
-import { WordSearchResult } from '../../models/word-search-result';
+import { Word } from '../../models/word';
 import { WordSearchService } from '../../services/word-search.service';
 
 @Component({
@@ -24,8 +24,8 @@ export class BrowsePageComponent {
   protected readonly currentPage = signal(1);
   protected readonly totalPages = signal(0);
   protected readonly totalCount = signal(0);
-  protected readonly words = signal<WordSearchResult[]>([]);
-  protected readonly selectedWord = signal<WordSearchResult | null>(null);
+  protected readonly words = signal<Word[]>([]);
+  protected readonly selectedWord = signal<Word | null>(null);
   protected readonly isLoading = signal(false);
   protected readonly hasError = signal(false);
 
@@ -92,7 +92,7 @@ export class BrowsePageComponent {
       });
   }
 
-  protected selectWord(word: WordSearchResult): void {
+  protected selectWord(word: Word): void {
     this.selectedWord.set(word);
   }
 

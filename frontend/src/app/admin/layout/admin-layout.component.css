@@ -1,0 +1,186 @@
+:host {
+    display: block;
+    min-height: 100vh;
+    background:
+        radial-gradient(circle at 20% 15%, rgba(39, 94, 134, 0.17), transparent 36%),
+        radial-gradient(circle at 82% 12%, rgba(208, 157, 110, 0.2), transparent 32%),
+        #f6f1e8;
+    color: #2b2623;
+}
+
+.admin-shell {
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 290px 1fr;
+}
+
+.admin-sidebar {
+    border-left: 1px solid rgba(27, 77, 126, 0.12);
+    background: linear-gradient(180deg, #183651 0%, #1e4668 100%);
+    color: #eef4f8;
+    padding: 28px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 22px;
+}
+
+.brand-block {
+    border: 1px solid rgba(255, 255, 255, 0.18);
+    border-radius: 14px;
+    padding: 14px;
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.brand-block h2 {
+    margin: 4px 0 0;
+    font-size: 1.2rem;
+    line-height: 1.4;
+}
+
+.brand-caption {
+    margin: 0;
+    font-size: 0.8rem;
+    opacity: 0.82;
+}
+
+.side-nav {
+    display: grid;
+    gap: 10px;
+}
+
+.side-nav a {
+    color: #f2f7fa;
+    text-decoration: none;
+    border-radius: 10px;
+    padding: 10px 12px;
+    border: 1px solid transparent;
+    transition: transform 0.2s ease, background-color 0.2s ease, border-color 0.2s ease;
+}
+
+.side-nav a:hover {
+    transform: translateX(-2px);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.side-nav a.active {
+    background-color: rgba(208, 157, 110, 0.22);
+    border-color: rgba(208, 157, 110, 0.5);
+}
+
+.logout-button {
+    margin-top: auto;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    border-radius: 10px;
+    background: transparent;
+    color: #fff;
+    font-size: 0.95rem;
+    padding: 10px 12px;
+}
+
+.logout-button:hover {
+    background-color: rgba(255, 255, 255, 0.14);
+}
+
+.admin-main {
+    padding: 22px;
+    display: grid;
+    grid-template-rows: auto 1fr;
+    gap: 16px;
+}
+
+.admin-header {
+    background-color: rgba(255, 255, 255, 0.76);
+    border: 1px solid rgba(27, 77, 126, 0.16);
+    border-radius: 14px;
+    padding: 14px 18px;
+    backdrop-filter: blur(4px);
+}
+
+.admin-header h1 {
+    margin: 0;
+    font-size: 1.4rem;
+    color: #183651;
+}
+
+.admin-header p {
+    margin: 6px 0 0;
+    color: #4d5d69;
+}
+
+.admin-content {
+    background-color: rgba(255, 255, 255, 0.84);
+    border-radius: 16px;
+    border: 1px solid rgba(208, 157, 110, 0.3);
+    padding: 20px;
+}
+
+.toast-host {
+    position: fixed;
+    bottom: 20px;
+    left: 20px;
+    width: min(420px, calc(100vw - 40px));
+    display: grid;
+    gap: 10px;
+    z-index: 70;
+}
+
+.toast-item {
+    border-radius: 12px;
+    border: 1px solid;
+    background-color: #fff;
+    box-shadow: 0 10px 26px rgba(24, 54, 81, 0.18);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    padding: 10px 12px;
+}
+
+.toast-item.success {
+    border-color: rgba(33, 114, 74, 0.4);
+}
+
+.toast-item.error {
+    border-color: rgba(164, 59, 48, 0.4);
+}
+
+.toast-close {
+    border: 0;
+    background: transparent;
+    color: #2b2623;
+    font-size: 1.15rem;
+    line-height: 1;
+}
+
+@media (max-width: 960px) {
+    .admin-shell {
+        grid-template-columns: 1fr;
+    }
+
+    .admin-sidebar {
+        border-left: 0;
+        border-bottom: 1px solid rgba(255, 255, 255, 0.16);
+    }
+
+    .side-nav {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .logout-button {
+        margin-top: 0;
+    }
+}
+
+@media (max-width: 680px) {
+    .admin-main {
+        padding: 12px;
+    }
+
+    .admin-content {
+        padding: 14px;
+    }
+
+    .side-nav {
+        grid-template-columns: 1fr;
+    }
+}

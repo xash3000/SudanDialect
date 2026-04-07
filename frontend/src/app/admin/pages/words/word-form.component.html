@@ -1,0 +1,76 @@
+<section class="word-form-page" dir="rtl">
+  <header class="page-header">
+    <h2>{{ pageTitle() }}</h2>
+    <button type="button" class="secondary" (click)="cancel()">العودة إلى القائمة</button>
+  </header>
+
+  @if (errorMessage()) {
+    <p class="error-message" role="alert">{{ errorMessage() }}</p>
+  }
+
+  @if (isLoading()) {
+    <p class="loading-message">جاري تحميل بيانات الكلمة...</p>
+  } @else {
+    <form class="word-form" [formGroup]="wordForm" (ngSubmit)="submit()" novalidate>
+      <div class="field-group">
+        <label for="word-id">المعرّف (ID)</label>
+        <input
+          id="word-id"
+          type="text"
+          [value]="wordId() ?? 'سيتم إنشاؤه تلقائياً بعد الحفظ'"
+          readonly
+          aria-readonly="true"
+        />
+      </div>
+
+      <div class="field-group">
+        <label for="headword">الكلمة</label>
+        <input
+          id="headword"
+          type="text"
+          formControlName="headword"
+          placeholder="ادخل الكلمة باللهجة السودانية"
+          maxlength="200"
+        />
+        @if (fieldHasError('headword', 'required')) {
+          <small class="validation">حقل الكلمة مطلوب.</small>
+        }
+        @if (fieldHasError('headword', 'arabicRequired')) {
+          <small class="validation">يجب أن يحتوي النص على حروف عربية.</small>
+        }
+      </div>
+
+      <div class="field-group">
+        <label for="definition">التعريف</label>
+        <textarea
+          id="definition"
+          rows="6"
+          formControlName="definition"
+          placeholder="ادخل تعريف الكلمة بالعربية"
+          maxlength="4000"
+        ></textarea>
+        @if (fieldHasError('definition', 'required')) {
+          <small class="validation">حقل التعريف مطلوب.</small>
+        }
+        @if (fieldHasError('definition', 'arabicRequired')) {
+          <small class="validation">يجب أن يحتوي النص على حروف عربية.</small>
+        }
+      </div>
+
+      <label class="checkbox-field" for="is-active">
+        <input id="is-active" type="checkbox" formControlName="isActive" />
+        الكلمة نشطة وقابلة للظهور في البحث
+      </label>
+
+      <div class="form-actions">
+        <button type="button" class="secondary" (click)="cancel()">إلغاء</button>
+        <button type="submit" class="primary" [disabled]="isSaving()">
+          @if (isSaving()) {
+            <span class="spinner" aria-hidden="true"></span>
+          }
+          حفظ
+        </button>
+      </div>
+    </form>
+  }
+</section>

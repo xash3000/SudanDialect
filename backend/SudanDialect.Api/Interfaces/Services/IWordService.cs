@@ -1,12 +1,12 @@
 using SudanDialect.Api.Dtos;
 
-namespace SudanDialect.Api.Services;
+namespace SudanDialect.Api.Interfaces.Services;
 
 public interface IWordService
 {
     Task<WordSearchResultDto?> GetByIdAsync(int id, CancellationToken cancellationToken = default);
 
-    Task<WordBrowsePageDto> BrowseByLetterAsync(
+    Task<WordPageDto> BrowseByLetterAsync(
         string? rawLetter,
         int page,
         int pageSize,

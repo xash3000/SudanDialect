@@ -1,6 +1,6 @@
 using Microsoft.AspNetCore.Mvc;
 using SudanDialect.Api.Dtos;
-using SudanDialect.Api.Services;
+using SudanDialect.Api.Interfaces.Services;
 
 namespace SudanDialect.Api.Controllers;
 
@@ -58,9 +58,9 @@ public sealed class WordsController : ControllerBase
     }
 
     [HttpGet("browse")]
-    [ProducesResponseType(typeof(WordBrowsePageDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(WordPageDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<WordBrowsePageDto>> BrowseByLetter(
+    public async Task<ActionResult<WordPageDto>> BrowseByLetter(
         [FromQuery] string? letter,
         CancellationToken cancellationToken,
         [FromQuery] int page = 1,

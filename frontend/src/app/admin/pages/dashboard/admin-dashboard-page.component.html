@@ -1,0 +1,33 @@
+<section class="dashboard-page" dir="rtl">
+  <header class="section-header">
+    <h2>نظرة عامة</h2>
+    <button type="button" (click)="refresh()">تحديث الأرقام</button>
+  </header>
+
+  @if (isLoading()) {
+    <p class="state-message">جاري تحميل الإحصائيات...</p>
+  }
+
+  @if (errorMessage()) {
+    <p class="state-message error" role="alert">{{ errorMessage() }}</p>
+  }
+
+  @if (!isLoading() && metrics(); as metrics) {
+    <div class="metric-grid">
+      <article class="metric-card total">
+        <p>إجمالي الكلمات</p>
+        <strong>{{ metrics.totalWords }}</strong>
+      </article>
+
+      <article class="metric-card active">
+        <p>الكلمات النشطة</p>
+        <strong>{{ metrics.activeWords }}</strong>
+      </article>
+
+      <article class="metric-card inactive">
+        <p>الكلمات غير النشطة</p>
+        <strong>{{ metrics.inactiveWords }}</strong>
+      </article>
+    </div>
+  }
+</section>

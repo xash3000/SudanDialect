@@ -1,0 +1,118 @@
+<section class="word-list-page" dir="rtl">
+  <header class="toolbar">
+    <h2>إدارة الكلمات</h2>
+
+    <div class="toolbar-actions">
+      <button type="button" class="secondary" (click)="refresh()">تحديث</button>
+      <button type="button" class="primary" (click)="goToNewWord()">إضافة كلمة جديدة</button>
+    </div>
+  </header>
+
+  <div class="filters">
+    <input
+      type="text"
+      [formControl]="searchControl"
+      placeholder="ابحث في الكلمة أو التعريف..."
+      aria-label="فلترة الكلمات"
+    />
+
+    <div class="status-filter" role="group" aria-label="فلترة حسب الحالة">
+      <button type="button" [class.active]="activeFilter() === 'all'" (click)="setActiveFilter('all')">
+        الكل
+      </button>
+      <button type="button" [class.active]="activeFilter() === 'active'" (click)="setActiveFilter('active')">
+        نشطة
+      </button>
+      <button
+        type="button"
+        [class.active]="activeFilter() === 'inactive'"
+        (click)="setActiveFilter('inactive')"
+      >
+        غير نشطة
+      </button>
+    </div>
+  </div>
+
+  @if (errorMessage()) {
+    <p class="error" role="alert">{{ errorMessage() }}</p>
+  }
+
+  <div class="table-wrapper">
+    <table aria-label="جدول الكلمات">
+      <thead>
+        <tr>
+          <th>
+            <button type="button" class="sort-button" (click)="toggleSort('id')">
+              ID {{ sortIndicator('id') }}
+            </button>
+          </th>
+          <th>
+            <button type="button" class="sort-button" (click)="toggleSort('headword')">
+              الكلمة {{ sortIndicator('headword') }}
+            </button>
+          </th>
+          <th>التعريف</th>
+          <th>
+            <button type="button" class="sort-button" (click)="toggleSort('createdAt')">
+              تاريخ الإنشاء {{ sortIndicator('createdAt') }}
+            </button>
+          </th>
+          <th>
+            <button type="button" class="sort-button" (click)="toggleSort('updatedAt')">
+              تاريخ التحديث {{ sortIndicator('updatedAt') }}
+            </button>
+          </th>
+          <th>
+            <button type="button" class="sort-button" (click)="toggleSort('isActive')">
+              الحالة {{ sortIndicator('isActive') }}
+            </button>
+          </th>
+          <th>إجراءات</th>
+        </tr>
+      </thead>
+
+      <tbody>
+        @if (isLoading()) {
+          <tr>
+            <td colspan="7" class="state-cell">جاري تحميل البيانات...</td>
+          </tr>
+        } @else {
+          @for (word of words(); track word.id) {
+            <tr>
+              <td class="id-cell">{{ word.id }}</td>
+              <td class="headword-cell">{{ word.headword }}</td>
+              <td>{{ word.definition }}</td>
+              <td>{{ word.createdAt | date: 'yyyy/MM/dd HH:mm' }}</td>
+              <td>{{ word.updatedAt | date: 'yyyy/MM/dd HH:mm' }}</td>
+              <td>
+                <span class="status-pill" [class.active]="word.isActive" [class.inactive]="!word.isActive">
+                  {{ word.isActive ? 'نشطة' : 'غير نشطة' }}
+                </span>
+              </td>
+              <td>
+                <div class="row-actions">
+                  <button type="button" class="secondary" (click)="editWord(word.id)">تعديل</button>
+                  <button type="button" class="danger" (click)="deactivateWord(word)">تعطيل</button>
+                </div>
+              </td>
+            </tr>
+          } @empty {
+            <tr>
+              <td colspan="7" class="state-cell">لا توجد كلمات مطابقة للمعايير الحالية.</td>
+            </tr>
+          }
+        }
+      </tbody>
+    </table>
+  </div>
+
+  <footer class="pagination">
+    <p>إجمالي السجلات: {{ totalCount() }}</p>
+
+    <div class="pager-buttons">
+      <button type="button" (click)="previousPage()" [disabled]="!canGoPrevious()">السابق</button>
+      <span>صفحة {{ page() }} من {{ totalPages() || 1 }}</span>
+      <button type="button" (click)="nextPage()" [disabled]="!canGoNext()">التالي</button>
+    </div>
+  </footer>
+</section>
