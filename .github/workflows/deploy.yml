@@ -82,7 +82,7 @@ jobs:
           host: ${{ secrets.VPS_HOST }}
           username: ${{ secrets.VPS_USERNAME }}
           key: ${{ secrets.VPS_SSH_KEY }}
-          source: "docker-compose.yml,migrate.sql"
+          source: "backend/docker-compose.yml,migrate.sql"
           target: "~/deployments/sudandialect"
           rm: false
 
@@ -102,7 +102,21 @@ jobs:
           key: ${{ secrets.VPS_SSH_KEY }}
           envs: POSTGRES_USER,POSTGRES_PASSWORD,POSTGRES_DB,JWT_SIGNING_KEY,ADMIN_USER_1,ADMIN_PASS_1,GHCR_PAT
           script: |
+            set -euo pipefail
+
             cd ~/deployments/sudandialect
+
+            COMPOSE_FILE="docker-compose.yml"
+            if [ -f backend/docker-compose.yml ]; then
+              COMPOSE_FILE="backend/docker-compose.yml"
+            fi
+
+            if [ ! -f "$COMPOSE_FILE" ]; then
+              echo "docker-compose.yml was not uploaded to VPS."
+              ls -la
+              find . -maxdepth 3 -name "docker-compose.yml" -print
+              exit 1
+            fi
 
             # Generate .env file
             echo "POSTGRES_USER=$POSTGRES_USER" > .env
@@ -112,24 +126,29 @@ jobs:
             echo "ADMIN_USER_1=$ADMIN_USER_1" >> .env
             echo "ADMIN_PASS_1=$ADMIN_PASS_1" >> .env
             echo "FRONTEND_URL=${{ secrets.FRONTEND_URL }}" >> .env
+            echo "API_PORT=18080" >> .env
 
             # Login to GHCR on VPS
             echo $GHCR_PAT | docker login ghcr.io -u xash3000 --password-stdin
 
             # Pull latest images
-            docker compose pull
+            docker compose -f "$COMPOSE_FILE" --env-file .env pull
 
             # Stop existing setup
-            docker compose down
+            docker compose -f "$COMPOSE_FILE" --env-file .env down
 
             # Start DB and wait for it to be healthy (requires healthcheck in docker-compose.yml)
-            docker compose up -d --wait db
+            docker compose -f "$COMPOSE_FILE" --env-file .env up -d --wait db
 
             # Apply migrations
             cat migrate.sql | docker exec -i sudan_dialect_db psql -U $POSTGRES_USER -d $POSTGRES_DB
 
             # Start the API
-            docker compose up -d api
+            docker compose -f "$COMPOSE_FILE" --env-file .env up -d api
+
+            # Print status for quick verification in CI logs
+            docker compose -f "$COMPOSE_FILE" --env-file .env ps
+            docker ps --filter "name=sudan_dialect_" --format "table {{.Names}}\t{{.Status}}\t{{.Ports}}"
 
             # Cleanup
             docker image prune -f

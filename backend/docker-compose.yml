@@ -28,7 +28,7 @@ services:
       - AdminSeed__Users__0__Password=${ADMIN_PASS_1}
       - AllowedOrigins__0=${FRONTEND_URL}
     ports:
-      - "8080:8080"
+      - "${API_PORT}:8080"
 
 volumes:
   postgres_data:
