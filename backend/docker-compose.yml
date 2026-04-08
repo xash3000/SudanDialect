@@ -27,6 +27,7 @@ services:
       - AdminSeed__Users__0__Username=${ADMIN_USER_1}
       - AdminSeed__Users__0__Password=${ADMIN_PASS_1}
       - AllowedOrigins__0=${FRONTEND_URL}
+      - ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
     ports:
       - "${API_PORT}:8080"
 
