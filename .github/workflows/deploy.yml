@@ -32,9 +32,13 @@ jobs:
         run: dotnet restore backend/SudanDialect.Api/SudanDialect.Api.csproj
 
       - name: Generate DB Migration Script
+        env:
+          ConnectionStrings__DefaultConnection: Host=localhost;Database=ef_design_time;Username=postgres;Password=postgres
+          Jwt__SigningKey: ef-design-time-signing-key
         run: |
           dotnet ef migrations script --idempotent \
           --project backend/SudanDialect.Api/SudanDialect.Api.csproj \
+          --startup-project backend/SudanDialect.Api/SudanDialect.Api.csproj \
           -o migrate.sql
 
       - name: Upload SQL Script Artifact
