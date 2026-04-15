@@ -1,4 +1,6 @@
-# [sudandialect.com](sudandialect.com)
+![logo](./frontend/public/favicon.ico)
+
+# [sudandialect.com](https://sudandialect.com)
 
 This project aims to preserve Sudan’s linguistic richness and cultural diversity through a modern digital platform. We believe the Sudanese dialect is more than a way of speaking; it is a record of long-standing cultural and linguistic exchange that deserves to be documented for future generations.
 
@@ -9,7 +11,7 @@ This dictionary is an ongoing effort, and we welcome contributions and correctio
 
 ## Tech Stack
 
-- Backend: C#, ASP.NET (.NET 10), Entity Framework Core, PostgreSQL
+- Backend: C# (.NET 10), ASP.NET, Entity Framework Core, PostgreSQL
 - Frontend: Angular 21
 
 ## Features
