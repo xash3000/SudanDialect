@@ -19,6 +19,8 @@ public sealed class AdminWordRepository : IAdminWordRepository
     public async Task<(IReadOnlyList<Word> Items, int TotalCount)> GetPagedAsync(
         string? rawFilter,
         string? normalizedFilter,
+        int? wordIdFilter,
+        bool useHeadwordSearch,
         bool? isActive,
         string sortBy,
         bool sortDescending,
@@ -33,6 +35,11 @@ public sealed class AdminWordRepository : IAdminWordRepository
             query = query.Where(word => word.IsActive == isActive.Value);
         }
 
+        if (wordIdFilter.HasValue)
+        {
+            query = query.Where(word => word.Id == wordIdFilter.Value);
+        }
+
         var normalizedSearchTerm = !string.IsNullOrWhiteSpace(normalizedFilter)
             ? normalizedFilter.Trim()
             : string.Empty;
@@ -42,7 +49,7 @@ public sealed class AdminWordRepository : IAdminWordRepository
             normalizedSearchTerm = rawFilter.Trim();
         }
 
-        if (!string.IsNullOrWhiteSpace(normalizedSearchTerm))
+        if (useHeadwordSearch && !string.IsNullOrWhiteSpace(normalizedSearchTerm))
         {
             var rankedQuery = query
                 .Select(word => new

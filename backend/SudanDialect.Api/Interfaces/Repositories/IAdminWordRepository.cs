@@ -8,6 +8,8 @@ public interface IAdminWordRepository
     Task<(IReadOnlyList<Word> Items, int TotalCount)> GetPagedAsync(
         string? rawFilter,
         string? normalizedFilter,
+        int? wordIdFilter,
+        bool useHeadwordSearch,
         bool? isActive,
         string sortBy,
         bool sortDescending,

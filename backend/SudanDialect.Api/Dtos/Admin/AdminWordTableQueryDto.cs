@@ -17,6 +17,10 @@ public sealed class AdminWordTableQueryDto
     [FromQuery(Name = "query")]
     public string? Query { get; set; }
 
+    [StringLength(20)]
+    [FromQuery(Name = "searchBy")]
+    public string SearchBy { get; set; } = "headword";
+
     [FromQuery(Name = "isActive")]
     public bool? IsActive { get; set; }
 

@@ -14,6 +14,7 @@ public sealed class AdminWordService : IAdminWordService
     private const int MaxFilterLength = 200;
 
     private static readonly HashSet<string> AllowedSortFields = ["id", "headword", "createdat", "updatedat", "isactive"];
+    private static readonly HashSet<string> AllowedSearchFields = ["headword", "id"];
     private static readonly Regex ArabicTextRegex = new("[\\u0600-\\u06FF]", RegexOptions.Compiled);
 
     private readonly IAdminWordRepository _adminWordRepository;
@@ -33,13 +34,26 @@ public sealed class AdminWordService : IAdminWordService
         var page = query.Page <= 0 ? 1 : query.Page;
         var pageSize = query.PageSize <= 0 ? 20 : Math.Min(query.PageSize, MaxPageSize);
         var rawFilter = query.Query?.Trim();
+        var normalizedSearchBy = NormalizeSearchBy(query.SearchBy);
+        var useHeadwordSearch = normalizedSearchBy == "headword";
+        var wordIdFilter = default(int?);
 
         if (!string.IsNullOrWhiteSpace(rawFilter) && rawFilter.Length > MaxFilterLength)
         {
             throw new ArgumentException($"Filter length cannot exceed {MaxFilterLength} characters.", nameof(query.Query));
         }
 
-        var normalizedFilter = string.IsNullOrWhiteSpace(rawFilter)
+        if (!string.IsNullOrWhiteSpace(rawFilter) && !useHeadwordSearch)
+        {
+            if (!int.TryParse(rawFilter, out var parsedWordId) || parsedWordId <= 0)
+            {
+                throw new ArgumentException("Word id filter must be a positive integer.", nameof(query.Query));
+            }
+
+            wordIdFilter = parsedWordId;
+        }
+
+        var normalizedFilter = string.IsNullOrWhiteSpace(rawFilter) || !useHeadwordSearch
             ? string.Empty
             : ArabicTextNormalizer.Normalize(rawFilter);
 
@@ -49,6 +63,8 @@ public sealed class AdminWordService : IAdminWordService
         var (items, totalCount) = await _adminWordRepository.GetPagedAsync(
             rawFilter,
             normalizedFilter,
+            wordIdFilter,
+            useHeadwordSearch,
             query.IsActive,
             normalizedSortBy,
             sortDescending,
@@ -64,6 +80,8 @@ public sealed class AdminWordService : IAdminWordService
             (items, _) = await _adminWordRepository.GetPagedAsync(
                 rawFilter,
                 normalizedFilter,
+                wordIdFilter,
+                useHeadwordSearch,
                 query.IsActive,
                 normalizedSortBy,
                 sortDescending,
@@ -185,5 +203,16 @@ public sealed class AdminWordService : IAdminWordService
         }
 
         return "desc";
+    }
+
+    private static string NormalizeSearchBy(string? searchBy)
+    {
+        if (string.IsNullOrWhiteSpace(searchBy))
+        {
+            return "headword";
+        }
+
+        var normalized = searchBy.Trim().ToLowerInvariant();
+        return AllowedSearchFields.Contains(normalized) ? normalized : "headword";
     }
 }

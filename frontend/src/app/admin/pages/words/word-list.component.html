@@ -9,12 +9,23 @@
   </header>
 
   <div class="filters">
-    <input
-      type="text"
-      [formControl]="searchControl"
-      placeholder="ابحث في الكلمة أو التعريف..."
-      aria-label="فلترة الكلمات"
-    />
+    <div class="search-box">
+      <select
+        [value]="searchBy()"
+        (change)="setSearchBy(($any($event.target).value))"
+        aria-label="نوع البحث"
+      >
+        <option value="headword">بحث بالكلمة</option>
+        <option value="id">بحث برقم المعرّف</option>
+      </select>
+
+      <input
+        type="text"
+        [formControl]="searchControl"
+        [placeholder]="searchBy() === 'id' ? 'ابحث برقم المعرّف...' : 'ابحث في الكلمة...'"
+        aria-label="فلترة الكلمات"
+      />
+    </div>
 
     <div class="status-filter" role="group" aria-label="فلترة حسب الحالة">
       <button type="button" [class.active]="activeFilter() === 'all'" (click)="setActiveFilter('all')">
