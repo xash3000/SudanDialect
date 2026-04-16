@@ -1,6 +1,7 @@
 .about-container {
   max-width: 900px;
   margin: 3rem auto;
+  padding: 0 1rem;
   font-family: "Amiri", serif;
   color: var(--color-text-main);
 }
@@ -40,4 +41,31 @@ h2 {
 
 .about-section.note p {
   font-style: italic;
+}
+
+@media (max-width: 640px) {
+  .about-container {
+    margin: 1.5rem auto;
+    padding: 0 0.75rem;
+  }
+
+  h1 {
+    font-size: 1.9rem;
+    margin-bottom: 1.25rem;
+  }
+
+  h2 {
+    font-size: 1.28rem;
+    margin-top: 0;
+  }
+
+  .about-section {
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .about-section p {
+    font-size: 1rem;
+    line-height: 1.8;
+  }
 }

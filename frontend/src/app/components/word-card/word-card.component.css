@@ -71,7 +71,8 @@
 }
 
 .share-popup {
-  width: min(640px, calc(100vw - 22px));
+  box-sizing: border-box;
+  width: min(640px, calc(100dvw - 22px));
   margin: 0 0 14px;
   padding: 16px;
   border: 1px solid rgba(196, 154, 108, 0.9);
@@ -168,11 +169,13 @@
 }
 
 .definition-tooltip {
+  display: none;
+  box-sizing: border-box;
   position: absolute;
   inset-inline-start: 0;
   bottom: calc(100% + 8px);
-  min-width: 180px;
-  max-width: min(360px, 85vw);
+  min-width: min(180px, calc(100dvw - 24px));
+  max-width: min(360px, calc(100dvw - 24px));
   padding: 10px 12px;
   border-radius: 8px;
   background-color: var(--color-primary);
@@ -180,21 +183,17 @@
   font-size: 0.92rem;
   line-height: 1.55;
   white-space: normal;
+  overflow-wrap: anywhere;
+  word-break: break-word;
   text-align: right;
   box-shadow: 0 6px 16px rgba(0, 0, 0, 0.2);
-  opacity: 0;
-  visibility: hidden;
-  transform: translateY(4px);
-  transition: opacity 0.16s ease, transform 0.16s ease, visibility 0.16s ease;
   pointer-events: none;
   z-index: 10;
 }
 
 .definition-tag:hover .definition-tooltip,
 .definition-tag:focus .definition-tooltip {
-  opacity: 1;
-  visibility: visible;
-  transform: translateY(0);
+  display: block;
 }
 
 @media (max-width: 600px) {
@@ -203,7 +202,7 @@
   }
 
   .share-popup {
-    width: calc(100vw - 14px);
+    width: calc(100dvw - 14px);
     margin-bottom: 8px;
     border-radius: 12px;
   }

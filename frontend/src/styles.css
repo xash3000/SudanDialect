@@ -20,6 +20,7 @@ body {
   margin: 0;
   background-color: var(--color-neutral);
   color: var(--color-text-main);
+  overflow-x: clip;
 }
 
 app-root {
@@ -35,6 +36,7 @@ button,
 input,
 select,
 textarea {
+  box-sizing: border-box;
   font-family: inherit;
 }
 
