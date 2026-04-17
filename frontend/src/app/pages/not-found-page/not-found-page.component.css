@@ -1,0 +1,97 @@
+.not-found-page {
+    min-height: calc(100vh - 120px);
+    display: grid;
+    place-items: center;
+    padding: 2rem 1rem;
+}
+
+.not-found-card {
+    width: min(720px, 100%);
+    background:
+        linear-gradient(160deg, rgba(255, 255, 255, 0.86) 0%, rgba(255, 255, 255, 0.66) 100%),
+        radial-gradient(circle at 85% 20%, rgba(196, 154, 108, 0.18), transparent 45%);
+    border: 1px solid rgba(27, 77, 126, 0.2);
+    border-radius: 16px;
+    box-shadow: 0 14px 36px rgba(58, 49, 46, 0.15);
+    text-align: center;
+    padding: 2.25rem 1.25rem;
+}
+
+.error-code {
+    margin: 0;
+    font-size: clamp(3rem, 8vw, 5rem);
+    font-weight: 700;
+    letter-spacing: 2px;
+    color: var(--color-primary);
+    line-height: 1;
+}
+
+h1 {
+    margin: 0.75rem 0 0;
+    font-size: clamp(1.55rem, 4.5vw, 2.3rem);
+    color: var(--color-text-main);
+}
+
+.message {
+    margin: 1rem auto 0;
+    max-width: 46ch;
+    line-height: 1.9;
+    font-size: 1.04rem;
+    color: var(--color-text-muted);
+}
+
+.actions {
+    margin-top: 1.6rem;
+    display: flex;
+    gap: 0.75rem;
+    justify-content: center;
+    flex-wrap: wrap;
+}
+
+.actions a {
+    text-decoration: none;
+    font-size: 1rem;
+    padding: 0.62rem 1.15rem;
+    border-radius: 999px;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, background-color 0.2s ease, color 0.2s ease;
+}
+
+.actions a:hover {
+    transform: translateY(-1px);
+}
+
+.primary-link {
+    color: #fff;
+    background: var(--color-primary);
+    box-shadow: 0 6px 14px rgba(27, 77, 126, 0.3);
+}
+
+.primary-link:hover {
+    background: #153f67;
+}
+
+.secondary-link {
+    color: var(--color-text-main);
+    background: rgba(196, 154, 108, 0.22);
+    border: 1px solid rgba(196, 154, 108, 0.5);
+}
+
+.secondary-link:hover {
+    background: rgba(196, 154, 108, 0.3);
+}
+
+@media (max-width: 640px) {
+    .not-found-page {
+        min-height: calc(100vh - 90px);
+        padding: 1.2rem 0.75rem;
+    }
+
+    .not-found-card {
+        border-radius: 12px;
+        padding: 1.4rem 0.95rem;
+    }
+
+    .message {
+        line-height: 1.75;
+    }
+}

@@ -3,6 +3,7 @@ import { HomePageComponent } from './pages/home-page/home-page.component';
 import { ContactPageComponent } from './pages/contact-page/contact-page.component';
 import { AboutPageComponent } from './pages/about-page/about-page.component';
 import { BrowsePageComponent } from './pages/browse-page/browse-page.component';
+import { NotFoundPageComponent } from './pages/not-found-page/not-found-page.component';
 
 export const routes: Routes = [
   {
@@ -31,6 +32,6 @@ export const routes: Routes = [
   },
   {
     path: '**',
-    redirectTo: ''
+    component: NotFoundPageComponent
   }
 ];
