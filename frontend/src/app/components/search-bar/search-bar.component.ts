@@ -33,9 +33,46 @@ export class SearchBarComponent {
     this.inputBlurred.emit();
   }
 
+  protected onEnter(event: Event): void {
+    event.preventDefault();
+
+    const input = this.searchInput?.nativeElement;
+    if (!input) {
+      return;
+    }
+
+    this.hideMobileKeyboardKeepingFocus(input);
+  }
+
   protected selectWord(word: WordSearchResult, event: MouseEvent): void {
     event.preventDefault();
     this.searchInput?.nativeElement.blur();
     this.wordSelected.emit(word);
+  }
+
+  private hideMobileKeyboardKeepingFocus(input: HTMLInputElement): void {
+    const navigatorWithVirtualKeyboard = navigator as Navigator & {
+      virtualKeyboard?: {
+        hide?: () => void;
+      };
+    };
+
+    if (navigatorWithVirtualKeyboard.virtualKeyboard?.hide) {
+      navigatorWithVirtualKeyboard.virtualKeyboard.hide();
+      return;
+    }
+
+    const selectionStart = input.selectionStart ?? input.value.length;
+    const selectionEnd = input.selectionEnd ?? input.value.length;
+    const wasReadOnly = input.readOnly;
+
+    // Fallback: toggle readOnly to dismiss virtual keyboard without forcing blur.
+    input.readOnly = true;
+    input.setSelectionRange(selectionStart, selectionEnd);
+
+    window.setTimeout(() => {
+      input.readOnly = wasReadOnly;
+      input.setSelectionRange(selectionStart, selectionEnd);
+    }, 0);
   }
 }

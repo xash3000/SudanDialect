@@ -6,10 +6,12 @@
       type="text"
       [value]="query"
       (input)="onInput(($any($event.target)).value)"
+      (keydown.enter)="onEnter($event)"
       (focus)="onFocus()"
       (blur)="onBlur()"
       placeholder="ابحث عن كلمة..."
       autocomplete="off"
+      enterkeyhint="search"
       aria-label="حقل البحث"
     />
 
