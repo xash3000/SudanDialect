@@ -30,12 +30,16 @@
   margin-top: 14px;
 }
 
+.word-id-container {
+  align-self: flex-end;
+  margin-left: auto;
+}
+
 .word-id {
   margin: 8px 0 0;
   color: rgba(58, 49, 46, 0.85);
   font-size: 0.64rem;
   line-height: 1;
-  text-align: right;
 }
 
 .share-trigger {

@@ -21,17 +21,21 @@
   </p>
 
   <div class="word-actions">
+    <div class="word-id-container">
+      <p class="word-id" dir="ltr">#{{ word.id }}</p>
+    </div>
+
     <button class="share-trigger" type="button" (click)="openSharePopup()" title="مشاركة">
       <fa-icon [icon]="shareIcon" class="icon" aria-hidden="true" />
       مشاركة
     </button>
+
     <button class="feedback-trigger" type="button" (click)="openFeedbackPopup()" title="ابلغ عن خطأ">
       <fa-icon [icon]="reportIcon" class="icon" aria-hidden="true" />
       ابلغ عن خطأ
     </button>
   </div>
 
-  <p class="word-id" dir="ltr">#{{ word.id }}</p>
 </article>
 
 @if (isSharePopupOpen) {
