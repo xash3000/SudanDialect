@@ -1,6 +1,8 @@
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using SudanDialect.Api.Dtos;
 using SudanDialect.Api.Interfaces.Services;
+using SudanDialect.Api.Utilities;
 
 namespace SudanDialect.Api.Controllers;
 
@@ -16,6 +18,7 @@ public sealed class WordsController : ControllerBase
     }
 
     [HttpGet("{id:int}")]
+    [EnableRateLimiting(RateLimitPolicyNames.WordsGetByIdPerIp)]
     [ProducesResponseType(typeof(WordSearchResultDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -40,6 +43,7 @@ public sealed class WordsController : ControllerBase
     }
 
     [HttpGet("search")]
+    [EnableRateLimiting(RateLimitPolicyNames.WordsSearchPerIp)]
     [ProducesResponseType(typeof(IReadOnlyList<WordSearchResultDto>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<IReadOnlyList<WordSearchResultDto>>> Search(
@@ -58,6 +62,7 @@ public sealed class WordsController : ControllerBase
     }
 
     [HttpGet("browse")]
+    [EnableRateLimiting(RateLimitPolicyNames.WordsBrowsePerIp)]
     [ProducesResponseType(typeof(WordPageDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<WordPageDto>> BrowseByLetter(
