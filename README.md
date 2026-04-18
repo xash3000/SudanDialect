@@ -9,11 +9,6 @@ The project began as an effort to connect linguistic heritage with modern techno
 This dictionary is an ongoing effort, and we welcome contributions and corrections to keep improving the content.
 
 
-## Tech Stack
-
-- Backend: C# (.NET 10), ASP.NET, Entity Framework Core, PostgreSQL
-- Frontend: Angular 21
-
 ## Features
 
 - **Advanced Arabic Search**: A robust search engine optimized for the Sudanese dialect, featuring:
@@ -21,6 +16,69 @@ This dictionary is an ongoing effort, and we welcome contributions and correctio
   - **Diacritics & Tashkeel Removal**: Seamlessly searches through text regardless of Tashkeel or other character extensions.
   - **Similarity Matching**: Powered by PostgreSQL trigram similarity to handle common spelling variations and typos.
 - **Alphabetical Browsing**: An interactive index allowing users to explore the dictionary letter by letter.
+
+## Tech Stack
+
+- Backend: C# (.NET 10), ASP.NET, Entity Framework Core, PostgreSQL
+- Frontend: Angular 21
+
+## Run Locally
+
+Frontend and backend are separate.
+
+### Frontend (Angular)
+
+1. Open a terminal in `frontend/`.
+2. Install dependencies:
+
+```bash
+npm install
+```
+
+3. Start the dev server:
+
+```bash
+ng serve
+```
+
+4. Open `http://localhost:4200`.
+
+### Backend 
+
+1. Create a `.env` file in `backend/` with these variables:
+
+```env
+POSTGRES_USER=postgres
+POSTGRES_PASSWORD=postgres
+POSTGRES_DB=sudandialect
+API_PORT=5038
+JWT_SIGNING_KEY=replace-with-a-long-random-secret
+TURNSTILE_SECRET_KEY=replace-with-your-turnstile-secret
+ADMIN_USER_1=admin
+ADMIN_PASS_1=replace-with-strong-password
+FRONTEND_URL=http://localhost:4200
+```
+
+2. Build the API docker image:
+
+```bash
+cd backend
+docker build -f SudanDialect.Api/Dockerfile -t ghcr.io/xash3000/sudandialect:latest .
+```
+
+3. Start backend services with Docker Compose:
+
+```bash
+docker compose up -d
+```
+
+4. The API will be available at `http://localhost:5038`.
+
+### Stop Services
+
+```bash
+docker compose down
+```
 
 ## License
 
