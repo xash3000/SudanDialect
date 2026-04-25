@@ -56,13 +56,52 @@ export class BrowsePageComponent {
     this.loadPage(page);
   }
 
-  protected pageNumbers(): number[] {
+  protected previousPage(): void {
+    this.goToPage(this.currentPage() - 1);
+  }
+
+  protected nextPage(): void {
+    this.goToPage(this.currentPage() + 1);
+  }
+
+  protected firstPage(): void {
+    this.goToPage(1);
+  }
+
+  protected lastPage(): void {
+    this.goToPage(this.totalPages());
+  }
+
+  protected canGoPrevious(): boolean {
+    return this.currentPage() > 1;
+  }
+
+  protected canGoNext(): boolean {
+    return this.totalPages() > 0 && this.currentPage() < this.totalPages();
+  }
+
+  protected visiblePages(): number[] {
     const total = this.totalPages();
     if (total <= 0) {
       return [];
     }
 
-    return Array.from({ length: total }, (_, index) => index + 1);
+    const current = this.currentPage();
+    const radius = 5;
+    const desiredWindowSize = radius * 2 + 1;
+
+    let start = Math.max(1, current - radius);
+    let end = Math.min(total, current + radius);
+
+    if (end - start + 1 < desiredWindowSize) {
+      if (start === 1) {
+        end = Math.min(total, start + desiredWindowSize - 1);
+      } else if (end === total) {
+        start = Math.max(1, end - desiredWindowSize + 1);
+      }
+    }
+
+    return Array.from({ length: end - start + 1 }, (_, index) => start + index);
   }
 
   private loadPage(page: number): void {

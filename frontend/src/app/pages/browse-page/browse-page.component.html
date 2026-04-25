@@ -53,18 +53,56 @@
       </div>
 
       @if (totalPages() > 1) {
-        <div class="pagination-controls">
-          @for (page of pageNumbers(); track page) {
-            <button
-              type="button"
-              class="pagination-button"
-              [class.active]="currentPage() === page"
-              [disabled]="isLoading()"
-              (click)="goToPage(page)"
-            >
-              {{ page }}
-            </button>
-          }
+        <div class="pagination-controls" role="navigation" aria-label="تصفح الصفحات">
+          <button
+            type="button"
+            class="pagination-button nav-button"
+            [disabled]="isLoading() || !canGoPrevious()"
+            (click)="firstPage()"
+          >
+            الأولى
+          </button>
+
+          <button
+            type="button"
+            class="pagination-button nav-button"
+            [disabled]="isLoading() || !canGoPrevious()"
+            (click)="previousPage()"
+          >
+            السابقة
+          </button>
+
+          <div class="pagination-pages">
+            @for (page of visiblePages(); track page) {
+              <button
+                type="button"
+                class="pagination-button"
+                [class.active]="currentPage() === page"
+                [disabled]="isLoading()"
+                (click)="goToPage(page)"
+              >
+                {{ page }}
+              </button>
+            }
+          </div>
+
+          <button
+            type="button"
+            class="pagination-button nav-button"
+            [disabled]="isLoading() || !canGoNext()"
+            (click)="nextPage()"
+          >
+            التالية
+          </button>
+
+          <button
+            type="button"
+            class="pagination-button nav-button"
+            [disabled]="isLoading() || !canGoNext()"
+            (click)="lastPage()"
+          >
+            الأخيرة
+          </button>
         </div>
       }
     }
