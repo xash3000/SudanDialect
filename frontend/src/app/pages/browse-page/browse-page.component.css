@@ -181,6 +181,17 @@
     gap: 0.4rem;
   }
 
+  .pagination-controls {
+    box-sizing: border-box;
+    width: 100%;
+    padding-inline: 0.45rem;
+  }
+
+  .pagination-pages {
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+
   .pagination-pages .pagination-button {
     margin-inline: 0.12rem;
   }
