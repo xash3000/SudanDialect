@@ -5,7 +5,7 @@
       class="search-input"
       type="text"
       [value]="query"
-      (input)="onInput(($any($event.target)).value)"
+      (input)="onInput($any($event.target).value)"
       (keydown.enter)="onEnter($event)"
       (focus)="onFocus()"
       (blur)="onBlur()"
@@ -15,11 +15,13 @@
       aria-label="حقل البحث"
     />
 
-    <span class="search-icon" aria-hidden="true">
+    <button class="search-btn" type="button" aria-label="بحث">
       <svg viewBox="0 0 24 24" focusable="false">
-        <path d="M10 4a6 6 0 1 1 0 12a6 6 0 0 1 0-12m0-2a8 8 0 1 0 4.9 14.3l4.4 4.4a1 1 0 0 0 1.4-1.4l-4.4-4.4A8 8 0 0 0 10 2z"></path>
+        <path
+          d="M10 4a6 6 0 1 1 0 12a6 6 0 0 1 0-12m0-2a8 8 0 1 0 4.9 14.3l4.4 4.4a1 1 0 0 0 1.4-1.4l-4.4-4.4A8 8 0 0 0 10 2z"
+        />
       </svg>
-    </span>
+    </button>
   </div>
 
   @if (showDropdown) {
@@ -27,17 +29,14 @@
       @if (isLoading) {
         <li class="dropdown-item disabled" aria-disabled="true">جاري البحث...</li>
       }
-
       @for (word of results; track word.id) {
         <li class="dropdown-item" (mousedown)="selectWord(word, $event)" role="option">
           {{ word.headword }}
         </li>
       }
-
       @if (shouldShowNoResults) {
         <li class="dropdown-item disabled" aria-disabled="true">لا توجد نتائج</li>
       }
-
       @if (hasRequestError && !isLoading) {
         <li class="dropdown-item disabled" aria-disabled="true">حدث خطأ أثناء البحث</li>
       }
