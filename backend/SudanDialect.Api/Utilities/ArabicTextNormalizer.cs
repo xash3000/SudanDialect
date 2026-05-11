@@ -66,10 +66,7 @@ public static class ArabicTextNormalizer
         // 9) Normalize standalone Hamza: ء -> ا
         normalized = StandaloneHamzaRegex.Replace(normalized, "ا");
 
-        // 10) Reduce repeated characters (e.g., ببب -> ب).
-        normalized = RepeatedCharactersRegex.Replace(normalized, "$1");
-
-        // 11) Remove invisible BiDi control characters.
+        // 10) Remove invisible BiDi control characters.
         normalized = BidiControlCharsRegex.Replace(normalized, string.Empty);
 
         return MultiWhitespaceRegex.Replace(normalized, " ").Trim();
