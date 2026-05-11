@@ -26,10 +26,10 @@ jobs:
           dotnet-version: '10.0.x'
 
       - name: Restore Dependencies
-        run: dotnet restore
+        run: dotnet restore backend/SudanDialect.slnx
 
       - name: Run Tests
-        run: dotnet test --verbosity normal
+        run: cd backend && dotnet test --verbosity normal
 
   build-and-push:
     needs: test
