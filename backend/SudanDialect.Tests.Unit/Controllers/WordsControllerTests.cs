@@ -43,7 +43,7 @@ public class WordsControllerTests
             .ReturnsAsync(expectedWord);
 
         // act
-        var actionResult = await _sut.GetById(publicId, CancellationToken.None);
+        var actionResult = await _sut.GetById(publicId, TestContext.Current.CancellationToken);
 
         // assert
         actionResult.Result.Should().NotBeNull();
@@ -62,7 +62,7 @@ public class WordsControllerTests
             .ReturnsAsync((WordDetailsDto?)null);
 
         // act
-        var actionResult = await _sut.GetById(publicId, CancellationToken.None);
+        var actionResult = await _sut.GetById(publicId, TestContext.Current.CancellationToken);
 
         // assert
         actionResult.Result.Should().NotBeNull();
@@ -79,7 +79,7 @@ public class WordsControllerTests
             .ThrowsAsync(new ArgumentOutOfRangeException("id", "Invalid ID"));
 
         // act
-        var actionResult = await _sut.GetById(publicId, CancellationToken.None);
+        var actionResult = await _sut.GetById(publicId, TestContext.Current.CancellationToken);
 
         // assert
         actionResult.Result.Should().NotBeNull();
@@ -101,7 +101,7 @@ public class WordsControllerTests
             .ReturnsAsync(expectedResults);
 
         // act
-        var actionResult = await _sut.Search(query, CancellationToken.None);
+        var actionResult = await _sut.Search(query, TestContext.Current.CancellationToken);
 
         // assert
         actionResult.Result.Should().NotBeNull();
@@ -120,7 +120,7 @@ public class WordsControllerTests
             .ThrowsAsync(new ArgumentException("Too long"));
 
         // act
-        var actionResult = await _sut.Search(query, CancellationToken.None);
+        var actionResult = await _sut.Search(query, TestContext.Current.CancellationToken);
 
         // assert
         actionResult.Result.Should().NotBeNull();
@@ -146,7 +146,7 @@ public class WordsControllerTests
             .ReturnsAsync(expectedPage);
 
         // act
-        var actionResult = await _sut.BrowseByLetter(letter, CancellationToken.None);
+        var actionResult = await _sut.BrowseByLetter(letter, TestContext.Current.CancellationToken);
 
         // assert
         actionResult.Result.Should().NotBeNull();
@@ -165,7 +165,7 @@ public class WordsControllerTests
             .ThrowsAsync(new ArgumentException("Invalid"));
 
         // act
-        var actionResult = await _sut.BrowseByLetter(letter, CancellationToken.None);
+        var actionResult = await _sut.BrowseByLetter(letter, TestContext.Current.CancellationToken);
 
         // assert
         actionResult.Result.Should().NotBeNull();
@@ -184,7 +184,7 @@ public class WordsControllerTests
             .ReturnsAsync(true);
 
         // act
-        var actionResult = await _sut.SubmitFeedback(id, request, CancellationToken.None);
+        var actionResult = await _sut.SubmitFeedback(id, request, TestContext.Current.CancellationToken);
 
         // assert
         actionResult.Result.Should().NotBeNull();
@@ -203,7 +203,7 @@ public class WordsControllerTests
             .ReturnsAsync(false);
 
         // act
-        var actionResult = await _sut.SubmitFeedback(id, request, CancellationToken.None);
+        var actionResult = await _sut.SubmitFeedback(id, request, TestContext.Current.CancellationToken);
 
         // assert
         actionResult.Result.Should().NotBeNull();
@@ -221,7 +221,7 @@ public class WordsControllerTests
             .ThrowsAsync(new ArgumentException("Bad Request"));
 
         // act
-        var actionResult = await _sut.SubmitFeedback(id, request, CancellationToken.None);
+        var actionResult = await _sut.SubmitFeedback(id, request, TestContext.Current.CancellationToken);
 
         // assert
         actionResult.Result.Should().NotBeNull();
@@ -239,7 +239,7 @@ public class WordsControllerTests
             .ReturnsAsync(true);
 
         // act
-        var actionResult = await _sut.SubmitSuggestion(request, CancellationToken.None);
+        var actionResult = await _sut.SubmitSuggestion(request, TestContext.Current.CancellationToken);
 
         // assert
         actionResult.Result.Should().NotBeNull();
@@ -257,7 +257,7 @@ public class WordsControllerTests
             .ThrowsAsync(new ArgumentException("invalid"));
 
         // act
-        var actionResult = await _sut.SubmitSuggestion(request, CancellationToken.None);
+        var actionResult = await _sut.SubmitSuggestion(request, TestContext.Current.CancellationToken);
 
         // assert
         actionResult.Result.Should().NotBeNull();

@@ -5,7 +5,6 @@ using SudanDialect.Api.Interfaces.Repositories;
 using SudanDialect.Api.Interfaces.Services;
 using SudanDialect.Api.Models;
 using SudanDialect.Api.Services;
-using System.Reflection;
 using Xunit;
 
 namespace SudanDialect.Tests.Unit.Services;
@@ -156,18 +155,16 @@ public class WordServiceTests
         yield return new object[] { "1", "text", "" }; // token empty
     }
 
-    public static IEnumerable<object[]> GetInvalidBrowseByLetterArguments()
+    public static IEnumerable<object?[]> GetInvalidBrowseByLetterArguments()
     {
-        // read private const MaxBrowsePageSize from WordService via reflection
-        var field = typeof(WordService).GetField("MaxBrowsePageSize", BindingFlags.NonPublic | BindingFlags.Static);
-        var maxPageSize = field is not null ? (int)field.GetRawConstantValue() : 60;
+        const int maxBrowsePageSize = 60;
 
-        yield return new object[] { null, 1, 40 }; // null letter -> invalid input (letter required)
-        yield return new object[] { "ب", 0, 40 }; // invalid page -> page must be >= 1
-        yield return new object[] { "ب", 1, 0 }; // invalid pageSize -> pageSize must be >= 1
-        yield return new object[] { "ب", 1, maxPageSize + 1 }; // invalid pageSize -> exceeds maximum allowed
-        yield return new object[] { "بب", 1, 40 }; // invalid letter -> must be a single character
-        yield return new object[] { "a", 1, 40 }; // invalid letter -> must be an Arabic character
+        yield return new object?[] { null, 1, 40 }; // null letter -> invalid input (letter required)
+        yield return new object?[] { "ب", 0, 40 }; // invalid page -> page must be >= 1
+        yield return new object?[] { "ب", 1, 0 }; // invalid pageSize -> pageSize must be >= 1
+        yield return new object?[] { "ب", 1, maxBrowsePageSize + 1 }; // invalid pageSize -> exceeds maximum allowed
+        yield return new object?[] { "بب", 1, 40 }; // invalid letter -> must be a single character
+        yield return new object?[] { "a", 1, 40 }; // invalid letter -> must be an Arabic character
     }
 
     [Theory]
