@@ -494,7 +494,7 @@ public class AdminWordServiceTests
         result.PageSize.Should().Be(200);
     }
 
-[Fact]
+    [Fact]
     public async Task GetAuditPageAsync_ShouldBoundedPage_WhenPageExceedsTotalPages()
     {
         var query = new AdminWordEditAuditQueryDto { Page = 15, PageSize = 10 };
@@ -727,7 +727,7 @@ public class AdminWordServiceTests
     [Fact]
     public async Task GetPageAsync_ShouldDefaultSortBy_WhenNull()
     {
-        var query = new AdminWordTableQueryDto { Page = 1, PageSize = 10, SortBy = null };
+        var query = new AdminWordTableQueryDto { Page = 1, PageSize = 10, SortBy = null! };
         var items = new List<Word>();
         _repositoryMock.Setup(r => r.GetPagedAsync(null, string.Empty, null, true, null, "updatedat", true, 1, 10, It.IsAny<CancellationToken>()))
             .ReturnsAsync((items, 0));
@@ -740,7 +740,7 @@ public class AdminWordServiceTests
     [Fact]
     public async Task GetPageAsync_ShouldDefaultSearchBy_WhenNull()
     {
-        var query = new AdminWordTableQueryDto { Page = 1, PageSize = 10, SearchBy = null };
+        var query = new AdminWordTableQueryDto { Page = 1, PageSize = 10, SearchBy = null! };
         var items = new List<Word>();
         _repositoryMock.Setup(r => r.GetPagedAsync(null, string.Empty, null, true, null, "updatedat", true, 1, 10, It.IsAny<CancellationToken>()))
             .ReturnsAsync((items, 0));
