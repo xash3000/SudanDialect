@@ -72,12 +72,11 @@ public sealed class WordsApiIntegrationTests : IAsyncLifetime
     }
 
     [Fact]
-    public async Task WordsEndpoints_ShouldWorkAgainstRealPostgres()
+    public async Task Search_ShouldReturnWord_WhenQueryMatchesHeadword()
     {
         _factory.Should().NotBeNull();
         _client.Should().NotBeNull();
 
-        // arrange
         await using var scope = _factory!.Services.CreateAsyncScope();
         var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
         var publicIdEncoder = scope.ServiceProvider.GetRequiredService<IPublicIdEncoder>();
@@ -99,7 +98,6 @@ public sealed class WordsApiIntegrationTests : IAsyncLifetime
 
         var publicId = publicIdEncoder.EncodeWordId(word.Id);
 
-        // act + assert: search
         using var searchResponse = await _client!.GetAsync(
             $"/api/words/search?query={Uri.EscapeDataString(headword)}",
             TestContext.Current.CancellationToken);
@@ -112,9 +110,36 @@ public sealed class WordsApiIntegrationTests : IAsyncLifetime
         searchResults.Should().NotBeNull();
         searchResults!.Should().Contain(result =>
             result.Id == publicId && result.Headword == headword && result.SimilarityScore > 0);
+    }
 
-        // act + assert: get by id
-        var details = await _client.GetFromJsonAsync<WordDetailsDto>(
+    [Fact]
+    public async Task GetById_ShouldReturnWordDetails_WhenValidPublicIdProvided()
+    {
+        _factory.Should().NotBeNull();
+        _client.Should().NotBeNull();
+
+        await using var scope = _factory!.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var publicIdEncoder = scope.ServiceProvider.GetRequiredService<IPublicIdEncoder>();
+
+        var headword = "تجربة";
+        var definition = "معنى تجربة";
+
+        var word = new Word
+        {
+            Headword = headword,
+            NormalizedHeadword = ArabicTextNormalizer.Normalize(headword),
+            Definition = definition,
+            NormalizedDefinition = ArabicTextNormalizer.Normalize(definition),
+            IsActive = true
+        };
+
+        db.Words.Add(word);
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var publicId = publicIdEncoder.EncodeWordId(word.Id);
+
+        var details = await _client!.GetFromJsonAsync<WordDetailsDto>(
             $"/api/words/{publicId}",
             cancellationToken: TestContext.Current.CancellationToken);
 
@@ -122,15 +147,512 @@ public sealed class WordsApiIntegrationTests : IAsyncLifetime
         details!.Id.Should().Be(publicId);
         details.Headword.Should().Be(headword);
         details.Definition.Should().Be(definition);
+    }
 
-        // act + assert: browse
+    [Fact]
+    public async Task Browse_ShouldReturnWordsByLetter_WhenValidLetterProvided()
+    {
+        _factory.Should().NotBeNull();
+        _client.Should().NotBeNull();
+
+        await using var scope = _factory!.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var publicIdEncoder = scope.ServiceProvider.GetRequiredService<IPublicIdEncoder>();
+
+        var headword = "تجربة";
+        var definition = "معنى تجربة";
+
+        var word = new Word
+        {
+            Headword = headword,
+            NormalizedHeadword = ArabicTextNormalizer.Normalize(headword),
+            Definition = definition,
+            NormalizedDefinition = ArabicTextNormalizer.Normalize(definition),
+            IsActive = true
+        };
+
+        db.Words.Add(word);
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var publicId = publicIdEncoder.EncodeWordId(word.Id);
+
         var letter = headword[..1];
-        var browse = await _client.GetFromJsonAsync<WordBrowsePageDto>(
+        var browse = await _client!.GetFromJsonAsync<WordBrowsePageDto>(
             $"/api/words/browse?letter={Uri.EscapeDataString(letter)}&page=1&pageSize=40",
             cancellationToken: TestContext.Current.CancellationToken);
 
         browse.Should().NotBeNull();
         browse!.Items.Should().Contain(item => item.Id == publicId && item.Headword == headword);
+    }
+
+    [Fact]
+    public async Task Search_ShouldReturnEmptyArray_WhenQueryIsNull()
+    {
+        _factory.Should().NotBeNull();
+        _client.Should().NotBeNull();
+
+        using var response = await _client!.GetAsync(
+            "/api/words/search",
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var results = await response.Content.ReadFromJsonAsync<List<WordSearchResultDto>>(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        results.Should().NotBeNull();
+        results.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task Search_ShouldReturnEmptyArray_WhenQueryIsEmpty()
+    {
+        _factory.Should().NotBeNull();
+        _client.Should().NotBeNull();
+
+        using var response = await _client!.GetAsync(
+            "/api/words/search?query=",
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+
+        var results = await response.Content.ReadFromJsonAsync<List<WordSearchResultDto>>(
+            cancellationToken: TestContext.Current.CancellationToken);
+
+        results.Should().NotBeNull();
+        results.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task Search_ShouldReturnBadRequest_WhenQueryExceedsMaxLength()
+    {
+        _factory.Should().NotBeNull();
+        _client.Should().NotBeNull();
+
+        var longQuery = new string('ت', 202);
+
+        using var response = await _client!.GetAsync(
+            $"/api/words/search?query={Uri.EscapeDataString(longQuery)}",
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task Browse_ShouldReturnBadRequest_WhenLetterIsNotArabic()
+    {
+        _factory.Should().NotBeNull();
+        _client.Should().NotBeNull();
+
+        using var response = await _client!.GetAsync(
+            "/api/words/browse?letter=a&page=1&pageSize=40",
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task Browse_ShouldReturnBadRequest_WhenLetterHasMultipleCharacters()
+    {
+        _factory.Should().NotBeNull();
+        _client.Should().NotBeNull();
+
+        using var response = await _client!.GetAsync(
+            "/api/words/browse?letter=تج&page=1&pageSize=40",
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task Browse_ShouldReturnBadRequest_WhenPageIsZero()
+    {
+        _factory.Should().NotBeNull();
+        _client.Should().NotBeNull();
+
+        using var response = await _client!.GetAsync(
+            "/api/words/browse?letter=ت&page=0&pageSize=40",
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task Browse_ShouldReturnBadRequest_WhenPageSizeExceedsMax()
+    {
+        _factory.Should().NotBeNull();
+        _client.Should().NotBeNull();
+
+        using var response = await _client!.GetAsync(
+            "/api/words/browse?letter=ت&page=1&pageSize=100",
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task GetById_ShouldReturnBadRequest_WhenPublicIdIsInvalid()
+    {
+        _factory.Should().NotBeNull();
+        _client.Should().NotBeNull();
+
+        using var response = await _client!.GetAsync(
+            "/api/words/invalid-id",
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task GetById_ShouldReturnNotFound_WhenWordDoesNotExist()
+    {
+        _factory.Should().NotBeNull();
+        _client.Should().NotBeNull();
+
+        await using var scope = _factory!.Services.CreateAsyncScope();
+        var publicIdEncoder = scope.ServiceProvider.GetRequiredService<IPublicIdEncoder>();
+
+        var nonexistentId = publicIdEncoder.EncodeWordId(99999);
+
+        using var response = await _client!.GetAsync(
+            $"/api/words/{nonexistentId}",
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task GetById_ShouldReturnNotFound_WhenWordIsInactive()
+    {
+        _factory.Should().NotBeNull();
+        _client.Should().NotBeNull();
+
+        await using var scope = _factory!.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var publicIdEncoder = scope.ServiceProvider.GetRequiredService<IPublicIdEncoder>();
+
+        var word = new Word
+        {
+            Headword = "غير نشط",
+            NormalizedHeadword = ArabicTextNormalizer.Normalize("غير نشط"),
+            Definition = "تعريف",
+            NormalizedDefinition = ArabicTextNormalizer.Normalize("تعريف"),
+            IsActive = false
+        };
+
+        db.Words.Add(word);
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var publicId = publicIdEncoder.EncodeWordId(word.Id);
+
+        using var response = await _client!.GetAsync(
+            $"/api/words/{publicId}",
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task SubmitFeedback_ShouldReturnOk_WhenValidFeedbackProvided()
+    {
+        _factory.Should().NotBeNull();
+        _client.Should().NotBeNull();
+
+        await using var scope = _factory!.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var publicIdEncoder = scope.ServiceProvider.GetRequiredService<IPublicIdEncoder>();
+
+        var word = new Word
+        {
+            Headword = "تجربة",
+            NormalizedHeadword = ArabicTextNormalizer.Normalize("تجربة"),
+            Definition = "معنى تجربة",
+            NormalizedDefinition = ArabicTextNormalizer.Normalize("معنى تجربة"),
+            IsActive = true
+        };
+
+        db.Words.Add(word);
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var publicId = publicIdEncoder.EncodeWordId(word.Id);
+
+        using var response = await _client!.PostAsync(
+            $"/api/words/{publicId}/feedback",
+            JsonContent.Create(new { feedbackText = "Test feedback", captchaToken = "valid-token" }),
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    [Fact]
+    public async Task SubmitFeedback_ShouldReturnNotFound_WhenWordDoesNotExist()
+    {
+        _factory.Should().NotBeNull();
+        _client.Should().NotBeNull();
+
+        await using var scope = _factory!.Services.CreateAsyncScope();
+        var publicIdEncoder = scope.ServiceProvider.GetRequiredService<IPublicIdEncoder>();
+
+        var nonexistentId = publicIdEncoder.EncodeWordId(99999);
+
+        using var response = await _client!.PostAsync(
+            $"/api/words/{nonexistentId}/feedback",
+            JsonContent.Create(new { feedbackText = "Test feedback", captchaToken = "valid-token" }),
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.NotFound);
+    }
+
+    [Fact]
+    public async Task SubmitFeedback_ShouldReturnBadRequest_WhenFeedbackTextIsEmpty()
+    {
+        _factory.Should().NotBeNull();
+        _client.Should().NotBeNull();
+
+        await using var scope = _factory!.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var publicIdEncoder = scope.ServiceProvider.GetRequiredService<IPublicIdEncoder>();
+
+        var word = new Word
+        {
+            Headword = "تجربة",
+            NormalizedHeadword = ArabicTextNormalizer.Normalize("تجربة"),
+            Definition = "معنى تجربة",
+            NormalizedDefinition = ArabicTextNormalizer.Normalize("معنى تجربة"),
+            IsActive = true
+        };
+
+        db.Words.Add(word);
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var publicId = publicIdEncoder.EncodeWordId(word.Id);
+
+        using var response = await _client!.PostAsync(
+            $"/api/words/{publicId}/feedback",
+            JsonContent.Create(new { feedbackText = "", captchaToken = "valid-token" }),
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task SubmitFeedback_ShouldReturnBadRequest_WhenFeedbackTextExceedsMaxLength()
+    {
+        _factory.Should().NotBeNull();
+        _client.Should().NotBeNull();
+
+        await using var scope = _factory!.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var publicIdEncoder = scope.ServiceProvider.GetRequiredService<IPublicIdEncoder>();
+
+        var word = new Word
+        {
+            Headword = "تجربة",
+            NormalizedHeadword = ArabicTextNormalizer.Normalize("تجربة"),
+            Definition = "معنى تجربة",
+            NormalizedDefinition = ArabicTextNormalizer.Normalize("معنى تجربة"),
+            IsActive = true
+        };
+
+        db.Words.Add(word);
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var publicId = publicIdEncoder.EncodeWordId(word.Id);
+        var longFeedback = new string('ت', 2001);
+
+        using var response = await _client!.PostAsync(
+            $"/api/words/{publicId}/feedback",
+            JsonContent.Create(new { feedbackText = longFeedback, captchaToken = "valid-token" }),
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task SubmitFeedback_ShouldReturnBadRequest_WhenCaptchaTokenIsMissing()
+    {
+        _factory.Should().NotBeNull();
+        _client.Should().NotBeNull();
+
+        await using var scope = _factory!.Services.CreateAsyncScope();
+        var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
+        var publicIdEncoder = scope.ServiceProvider.GetRequiredService<IPublicIdEncoder>();
+
+        var word = new Word
+        {
+            Headword = "تجربة",
+            NormalizedHeadword = ArabicTextNormalizer.Normalize("تجربة"),
+            Definition = "معنى تجربة",
+            NormalizedDefinition = ArabicTextNormalizer.Normalize("معنى تجربة"),
+            IsActive = true
+        };
+
+        db.Words.Add(word);
+        await db.SaveChangesAsync(TestContext.Current.CancellationToken);
+
+        var publicId = publicIdEncoder.EncodeWordId(word.Id);
+
+        using var response = await _client!.PostAsync(
+            $"/api/words/{publicId}/feedback",
+            JsonContent.Create(new { feedbackText = "Test feedback" }),
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task SubmitSuggestion_ShouldReturnOk_WhenValidSuggestionProvided()
+    {
+        _factory.Should().NotBeNull();
+        _client.Should().NotBeNull();
+
+        using var response = await _client!.PostAsync(
+            "/api/words/suggestions",
+            JsonContent.Create(new
+            {
+                headword = "كلمة جديدة",
+                definition = "تعريف جديد",
+                email = "test@example.com",
+                captchaToken = "valid-token"
+            }),
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    [Fact]
+    public async Task SubmitSuggestion_ShouldReturnOk_WhenEmailIsOptional()
+    {
+        _factory.Should().NotBeNull();
+        _client.Should().NotBeNull();
+
+        using var response = await _client!.PostAsync(
+            "/api/words/suggestions",
+            JsonContent.Create(new
+            {
+                headword = "كلمة جديدة",
+                definition = "تعريف جديد",
+                captchaToken = "valid-token"
+            }),
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.OK);
+    }
+
+    [Fact]
+    public async Task SubmitSuggestion_ShouldReturnBadRequest_WhenHeadwordIsMissing()
+    {
+        _factory.Should().NotBeNull();
+        _client.Should().NotBeNull();
+
+        using var response = await _client!.PostAsync(
+            "/api/words/suggestions",
+            JsonContent.Create(new
+            {
+                definition = "تعريف جديد",
+                captchaToken = "valid-token"
+            }),
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task SubmitSuggestion_ShouldReturnBadRequest_WhenDefinitionIsMissing()
+    {
+        _factory.Should().NotBeNull();
+        _client.Should().NotBeNull();
+
+        using var response = await _client!.PostAsync(
+            "/api/words/suggestions",
+            JsonContent.Create(new
+            {
+                headword = "كلمة جديدة",
+                captchaToken = "valid-token"
+            }),
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task SubmitSuggestion_ShouldReturnBadRequest_WhenHeadwordExceedsMaxLength()
+    {
+        _factory.Should().NotBeNull();
+        _client.Should().NotBeNull();
+
+        var longHeadword = new string('ت', 201);
+
+        using var response = await _client!.PostAsync(
+            "/api/words/suggestions",
+            JsonContent.Create(new
+            {
+                headword = longHeadword,
+                definition = "تعريف",
+                captchaToken = "valid-token"
+            }),
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task SubmitSuggestion_ShouldReturnBadRequest_WhenDefinitionExceedsMaxLength()
+    {
+        _factory.Should().NotBeNull();
+        _client.Should().NotBeNull();
+
+        var longDefinition = new string('ت', 4001);
+
+        using var response = await _client!.PostAsync(
+            "/api/words/suggestions",
+            JsonContent.Create(new
+            {
+                headword = "كلمة",
+                definition = longDefinition,
+                captchaToken = "valid-token"
+            }),
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task SubmitSuggestion_ShouldReturnBadRequest_WhenEmailIsInvalid()
+    {
+        _factory.Should().NotBeNull();
+        _client.Should().NotBeNull();
+
+        using var response = await _client!.PostAsync(
+            "/api/words/suggestions",
+            JsonContent.Create(new
+            {
+                headword = "كلمة جديدة",
+                definition = "تعريف جديد",
+                email = "not-a-valid-email",
+                captchaToken = "valid-token"
+            }),
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
+    }
+
+    [Fact]
+    public async Task SubmitSuggestion_ShouldReturnBadRequest_WhenCaptchaTokenIsMissing()
+    {
+        _factory.Should().NotBeNull();
+        _client.Should().NotBeNull();
+
+        using var response = await _client!.PostAsync(
+            "/api/words/suggestions",
+            JsonContent.Create(new
+            {
+                headword = "كلمة جديدة",
+                definition = "تعريف جديد"
+            }),
+            TestContext.Current.CancellationToken);
+
+        response.StatusCode.Should().Be(HttpStatusCode.BadRequest);
     }
 
     private static async Task ApplyMigrationsAsync(string connectionString)

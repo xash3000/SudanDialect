@@ -36,7 +36,7 @@ public sealed class WordsController : ControllerBase
 
             return Ok(word);
         }
-        catch (ArgumentOutOfRangeException exception)
+        catch (ArgumentException exception)
         {
             return BadRequest(new { error = exception.Message });
         }
