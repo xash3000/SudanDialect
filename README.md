@@ -80,6 +80,21 @@ docker compose up -d
 docker compose down
 ```
 
+## Tests
+
+### Backend (unit + integration)
+
+Prerequisites:
+
+- Docker Engine is running (integration tests use Testcontainers).
+
+Run all backend tests:
+
+```bash
+cd backend
+dotnet test --solution SudanDialect.slnx
+```
+
 ## License
 
 This project is licensed under the GNU General Public License v3.0 
