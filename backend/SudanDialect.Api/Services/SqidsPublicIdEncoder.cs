@@ -68,7 +68,7 @@ public sealed class SqidsPublicIdEncoder : IPublicIdEncoder
         return true;
     }
 
-    private static string BuildAlphabetFromSigningKey(string signingKey)
+    internal static string BuildAlphabetFromSigningKey(string signingKey)
     {
         var characters = BaseAlphabet.ToCharArray();
         var hash = SHA256.HashData(Encoding.UTF8.GetBytes(signingKey));
