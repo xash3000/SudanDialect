@@ -1,4 +1,4 @@
-name: Build and Deploy to VPS
+name: CI/CD Pipeline (test, build-and-push, deploy)
 
 on:
   push:
