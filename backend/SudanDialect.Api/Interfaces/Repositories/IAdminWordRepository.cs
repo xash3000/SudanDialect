@@ -54,4 +54,11 @@ public interface IAdminWordRepository
         CancellationToken cancellationToken = default);
 
     Task<AdminDashboardMetricsDto> GetMetricsAsync(CancellationToken cancellationToken = default);
+
+    Task<(IReadOnlyList<Word> Items, int TotalCount)> GetVisitsPagedAsync(
+        string sortBy,
+        bool sortDescending,
+        int page,
+        int pageSize,
+        CancellationToken cancellationToken = default);
 }

@@ -159,6 +159,7 @@ builder.Services.AddScoped<IWordService, WordService>();
 builder.Services.AddHttpClient<ITurnstileVerificationService, TurnstileVerificationService>();
 builder.Services.AddScoped<IAdminWordRepository, AdminWordRepository>();
 builder.Services.AddScoped<IAdminWordService, AdminWordService>();
+builder.Services.AddScoped<IAdminWordVisitService, AdminWordVisitService>();
 builder.Services.AddScoped<IAdminFeedbackRepository, AdminFeedbackRepository>();
 builder.Services.AddScoped<IAdminFeedbackService, AdminFeedbackService>();
 builder.Services.AddScoped<IAdminWordSuggestionRepository, AdminWordSuggestionRepository>();
