@@ -7,6 +7,7 @@ import { AdminAuditHistoryPageComponent } from './pages/history/admin-audit-hist
 import { AdminLoginPageComponent } from './pages/login/admin-login-page.component';
 import { AdminSettingsPageComponent } from './pages/settings/admin-settings-page.component';
 import { AdminWordSuggestionsPageComponent } from './pages/word-suggestions/admin-word-suggestions-page.component';
+import { WordVisitsPageComponent } from './pages/word-visits/word-visits-page.component';
 import { WordFormComponent } from './pages/words/word-form.component';
 import { WordListComponent } from './pages/words/word-list.component';
 
@@ -57,6 +58,10 @@ export const adminRoutes: Routes = [
             {
                 path: 'words/:id/history',
                 component: AdminAuditHistoryPageComponent
+            },
+            {
+                path: 'word-visits',
+                component: WordVisitsPageComponent
             },
             {
                 path: 'settings',
