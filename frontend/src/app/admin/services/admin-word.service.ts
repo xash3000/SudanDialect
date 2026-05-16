@@ -7,6 +7,10 @@ import {
   AdminAuditQuery,
 } from '../models/admin-audit.model';
 import {
+  AdminWordVisitPage,
+  AdminWordVisitQuery
+} from '../models/admin-word-visit.model';
+import {
   AdminCreateWordRequest,
   AdminDashboardMetrics,
   AdminUpdateWordRequest,
@@ -22,6 +26,22 @@ export class AdminWordService {
 
   getMetrics(): Observable<AdminDashboardMetrics> {
     return this.http.get<AdminDashboardMetrics>(`${this.adminApiBaseUrl}/metrics`);
+  }
+
+  getWordVisits(query: AdminWordVisitQuery): Observable<AdminWordVisitPage> {
+    let params = new HttpParams()
+      .set('page', query.page || 1)
+      .set('pageSize', query.pageSize || 20);
+
+    if (query.sortBy) {
+      params = params.set('sortBy', query.sortBy);
+    }
+
+    if (query.sortDirection) {
+      params = params.set('sortDirection', query.sortDirection);
+    }
+
+    return this.http.get<AdminWordVisitPage>(`${this.adminApiBaseUrl}/visits`, { params });
   }
 
   getWords(query: AdminWordTableQuery): Observable<AdminWordTablePage> {

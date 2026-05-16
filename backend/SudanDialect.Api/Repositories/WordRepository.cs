@@ -20,10 +20,18 @@ public sealed class WordRepository : IWordRepository
 
     public async Task<Word?> GetActiveByIdAsync(int id, CancellationToken cancellationToken = default)
     {
-        return await _dbContext.Words
-            .AsNoTracking()
+        var word = await _dbContext.Words
             .Where(word => word.IsActive && word.Id == id)
             .SingleOrDefaultAsync(cancellationToken);
+
+        if (word is not null)
+        {
+            word.VisitCount++;
+            word.LastVisitedAt = DateTime.UtcNow;
+            await _dbContext.SaveChangesAsync(cancellationToken);
+        }
+
+        return word;
     }
 
     public async Task<IReadOnlyList<Word>> GetActiveByFirstLetterAsync(
