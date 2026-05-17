@@ -3,7 +3,7 @@
   min-height: 100vh;
   background-color: var(--color-neutral);
   color: var(--color-text-main);
-  font-family: "Amiri", serif;
+  font-family: 'Amiri', serif;
 }
 
 :host {
@@ -13,6 +13,10 @@
 
 .app-content {
   flex: 1;
+  background-image: url('/Background.png');
+  background-repeat: no-repeat;
+  background-position: bottom center;
+  background-size: cover;
 }
 
 .app-content.admin-content {
@@ -20,22 +24,30 @@
 }
 
 .app-footer {
+  background-image: url('/footer.png'); /* your footer image */
+  background-size: cover;
+
+  background-position: center;
+  background-repeat: no-repeat;
+
+  /* Remove or comment out: */
+  /* background-color: var(--color-neutral); */
+
   border-top: 1px solid rgba(0, 0, 0, 0.12);
   padding: 0.9rem 1rem;
-  margin-bottom: 0;
   text-align: center;
-  background-color: var(--color-neutral);
-  color: #43403e;
+  color: #2c1a0e;
   font-size: 0.95rem;
   line-height: 1.7;
 }
 
 .app-footer p {
   margin: 0.2rem 0;
+  color: #2c1a0e;
 }
 
 .app-footer a {
-  color: var(--color-primary);
+  color: #1a5c2e;
   text-decoration: none;
   border-bottom: 1px solid rgba(27, 77, 126, 0.35);
 }

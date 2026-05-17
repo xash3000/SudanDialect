@@ -1,8 +1,10 @@
 <main class="page" dir="rtl">
   <section class="search-section">
-    <img src="/sudan_dialect_logo_16x16_400x.webp" alt="logo" class="brand-logo">
+    <img src="/sudan_dialect_logo_16x16_400x.webp" alt="logo" class="brand-logo" />
 
     <h1 class="title">قاموس اللهجة السودانية</h1>
+    <img src="/divider.png" alt="" class="title-divider" />
+    <p class="subtitle">كل ما تحتاجه لفهم اللهجة السودانية في مكان واحد</p>
 
     <app-search-bar
       [query]="searchQuery()"
@@ -15,13 +17,11 @@
       (inputFocused)="onSearchInputFocus()"
       (inputBlurred)="onSearchInputBlur()"
       (wordSelected)="selectWord($event)"
-
       class="app-search-bar"
     />
 
-
     @if (selectedWord(); as word) {
-      <app-word-card [word]="word" class="word-card"/>
+      <app-word-card [word]="word" class="word-card" />
     }
 
     @if (hasWordLoadError()) {
@@ -100,10 +100,20 @@
           }
 
           <div class="suggestion-actions">
-            <button type="button" class="suggestion-submit" (click)="submitSuggestion()" [disabled]="isSubmittingSuggestion()">
+            <button
+              type="button"
+              class="suggestion-submit"
+              (click)="submitSuggestion()"
+              [disabled]="isSubmittingSuggestion()"
+            >
               {{ isSubmittingSuggestion() ? 'جارٍ الإرسال...' : 'إرسال الاقتراح' }}
             </button>
-            <button type="button" class="suggestion-close" (click)="closeSuggestionForm()" [disabled]="isSubmittingSuggestion()">
+            <button
+              type="button"
+              class="suggestion-close"
+              (click)="closeSuggestionForm()"
+              [disabled]="isSubmittingSuggestion()"
+            >
               إغلاق
             </button>
           </div>

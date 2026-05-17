@@ -1,7 +1,7 @@
 .page {
   min-height: 100%;
   box-sizing: border-box;
-  padding: 32px 16px 24px;
+  padding: 10px 16px 24px;
   display: flex;
   justify-content: center;
 }
@@ -14,6 +14,12 @@
   flex-direction: column;
   align-items: center;
   width: 100%;
+}
+.title-divider {
+  width: 120px;
+  margin: -20px auto 1.5rem;
+  display: block;
+  opacity: 0.85;
 }
 
 .app-search-bar {
@@ -28,6 +34,13 @@
   font-size: 0.92rem;
   color: #6b5f53;
 }
+.subtitle {
+  text-align: center;
+  color: #2c1a0e;
+  font-size: 1.15rem;
+  margin: -0.5rem 0 1.5rem; /* changed from 0.1rem to -0.5rem */
+  font-family: var(--app-font-family);
+}
 
 .suggestion-hint a {
   color: var(--color-primary);
@@ -35,7 +48,6 @@
   text-underline-offset: 2px;
   font-weight: 600;
 }
-
 
 .suggestion-popup-backdrop {
   position: fixed;
@@ -169,7 +181,7 @@
 }
 
 .title {
-  margin: 0 0 30px;
+  margin: 0 0 25px;
   text-align: center;
   color: var(--color-primary);
   font-size: clamp(2rem, 5vw, 3.4rem);

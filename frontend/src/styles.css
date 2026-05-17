@@ -1,34 +1,48 @@
-/* You can add global styles to this file, and also import other style files */
+/* ============================================================
+   قاموس اللهجة السودانية — Global Styles (Redesigned)
+   ============================================================ */
 
-@import "tailwindcss";
+@import 'tailwindcss';
 
+/* ── Design Tokens ── */
 :root {
-  --app-font-family: "Amiri", serif;
-  --color-primary: #1b4d7e;
+  --app-font-family: 'Amiri', serif;
+  --app-ui-font: 'Amiri', serif;
+
+  /* Primary palette — forest/olive greens */
+  --color-primary: #1a5c2e; /* deep green (logo, headings) */
+  --color-primary-hover: #154d26;
+  --color-primary-light: #2d7a40; /* search button */
+  --color-accent: #c49a6c; /* warm gold accent */
+  --color-accent-dark: #a07840;
+
+  /* Backgrounds */
+  --color-bg: #f5ede0; /* warm cream page bg */
+  --color-bg-card: #fffbf5; /* card/panel bg */
+  --color-bg-card-border: rgba(180, 150, 100, 0.25);
+  --color-bg-input: #ffffff;
+
+  /* Text */
+  --color-text-main: #2c1f14; /* near-black warm brown */
+  --color-text-muted: #7a6a5a;
+  --color-text-light: #a09080;
+
+  /* Legacy compat (keep if used in components) */
   --color-secondary: #c49a6c;
   --color-tertiary: #a0522d;
-  --color-neutral: #e1c094;
-  --color-text-main: #3a312e;
-  --color-text-muted: #746d68;
+  --color-neutral: #f5ede0;
+
+  /* Spacing / radius */
+  --radius-card: 1rem;
+  --radius-input: 0.75rem;
+  --radius-btn: 0.6rem;
+
+  /* Shadows */
+  --shadow-card: 0 2px 20px rgba(60, 40, 10, 0.08);
+  --shadow-input: 0 2px 12px rgba(60, 40, 10, 0.06);
 }
 
-
-html,
-body {
-  font-family: var(--app-font-family);
-  min-height: 100%;
-  margin: 0;
-  background-color: var(--color-neutral);
-  color: var(--color-text-main);
-  overflow-x: clip;
-}
-
-app-root {
-  display: block;
-  min-height: 100vh;
-  background-color: var(--color-neutral);
-}
-
+/* ── Reset / Base ── */
 *,
 *::before,
 *::after,
@@ -40,39 +54,312 @@ textarea {
   font-family: inherit;
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
+html,
+body {
+  font-family: var(--app-font-family);
+  min-height: 100%;
+  margin: 0;
+  background-color: var(--color-bg);
+  color: var(--color-text-main);
+  overflow-x: clip;
+}
+
+/* ── App Root: watercolor background ── */
+app-root {
+  display: block;
+  min-height: 100vh;
+  background-color: var(--color-bg);
+
+  /* ── Watercolor illustration pinned to the bottom ── */
+  /*    Save Image 3 as: src/assets/background.png        */
+
+  position: relative;
+}
+
+/* ── Subtle geometric pattern overlay (top corners) ── */
+app-root::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background-image: radial-gradient(
+    ellipse 80% 40% at 50% 0%,
+    rgba(196, 154, 108, 0.08) 0%,
+    transparent 70%
+  );
+}
+
+/* ── Navbar ── */
+nav,
+.navbar,
+app-navbar {
+  position: relative;
+  z-index: 10;
+  background-color: rgba(245, 237, 224, 0.92);
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid var(--color-bg-card-border);
+  padding: 0.75rem 2rem;
+  font-family: var(--app-ui-font);
+}
+
+/* ── Navbar links ── */
+.nav-link,
+nav a {
+  color: var(--color-text-muted);
+  text-decoration: none;
+  font-size: 1rem;
+  font-weight: 500;
+  transition: color 0.2s;
+  padding-bottom: 2px;
+}
+
+.nav-link:hover,
+nav a:hover,
+.nav-link.active,
+nav a.active {
+  color: var(--color-primary);
+  border-bottom: 2px solid var(--color-primary);
+}
+
+/* ── Page logo / title heading ── */
+.site-title,
+h1.main-title {
+  font-family: var(--app-font-family);
+  color: var(--color-primary);
+  font-weight: 700;
+  line-height: 1.2;
+}
+
+/* Decorative diamond divider (used as <span class="divider"> in templates) */
+.divider {
+  display: block;
+  text-align: center;
+  color: var(--color-accent);
+  font-size: 1.25rem;
+  letter-spacing: 0.5rem;
+  margin: 0.5rem 0;
+  user-select: none;
+}
+
+/* ── Search bar ── */
+.search-wrapper {
+  background-color: rgba(245, 225, 185, 0.75); /* warm parchment, semi-transparent */
+  border: 1px solid rgba(180, 130, 70, 0.5); /* warm brown border */
+  border-radius: var(--radius-input);
+}
+
+.search-input {
+  background: transparent; /* ← must be transparent */
+}
+
+.search-btn {
+  background: transparent; /* ← transparent so parchment shows */
+  color: var(--color-primary); /* change icon color to green */
+  border: none;
+  padding: 0 1.25rem;
+  cursor: pointer;
+  font-size: 1.2rem;
+  transition: opacity 0.2s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.search-btn:hover {
+  opacity: 0.7;
+}
+
+/* ── Feature cards ── */
+.feature-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-bg-card-border);
+  border-radius: var(--radius-card);
+  padding: 1.75rem 1.5rem;
+  text-align: center;
+  box-shadow: var(--shadow-card);
+  transition:
+    transform 0.2s,
+    box-shadow 0.2s;
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+}
+
+.feature-card::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, var(--color-accent), var(--color-primary-light));
+  opacity: 0;
+  transition: opacity 0.2s;
+}
+
+.feature-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 32px rgba(60, 40, 10, 0.12);
+}
+
+.feature-card:hover::after {
+  opacity: 1;
+}
+
+.feature-card-icon {
+  width: 3rem;
+  height: 3rem;
+  background: rgba(26, 92, 46, 0.08);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 1rem;
+  color: var(--color-primary);
+  font-size: 1.4rem;
+}
+
+.feature-card h3 {
+  font-family: var(--app-font-family);
+  font-weight: 700;
+  color: var(--color-primary);
+  font-size: 1.2rem;
+  margin: 0 0 0.5rem;
+}
+
+.feature-card p {
+  color: var(--color-text-muted);
+  font-size: 0.95rem;
+  margin: 0;
+  line-height: 1.6;
+}
+
+/* Decorative card bottom border (zigzag pattern) */
+.card-border-pattern {
+  height: 8px;
+  background-image: repeating-linear-gradient(
+    -45deg,
+    var(--color-accent) 0,
+    var(--color-accent) 2px,
+    transparent 2px,
+    transparent 8px
+  );
+  opacity: 0.4;
+  border-radius: 0 0 var(--radius-card) var(--radius-card);
+}
+
+/* ── Suggest link ── */
+.suggest-link {
+  color: var(--color-primary);
+  font-weight: 700;
+  text-decoration: none;
+  border-bottom: 1px dashed var(--color-primary);
+  transition: color 0.2s;
+}
+
+.suggest-link:hover {
+  color: var(--color-accent-dark);
+  border-bottom-color: var(--color-accent-dark);
+}
+
+/* ── Footer ── */
+footer,
+.footer {
+  position: relative;
+  z-index: 5;
+  text-align: center;
+  padding: 1.5rem 1rem;
+  color: var(--color-text-muted);
+  font-size: 0.9rem;
+  border-top: 1px solid var(--color-bg-card-border);
+  background: rgba(245, 237, 224, 0.7);
+  backdrop-filter: blur(4px);
+  font-family: var(--app-ui-font);
+}
+
+footer a,
+.footer a {
+  color: var(--color-primary);
+  text-decoration: none;
+  font-weight: 700;
+}
+
+footer a:hover,
+.footer a:hover {
+  text-decoration: underline;
+}
+
+/* ── Typography utilities ── */
 .amiri-regular {
-  font-family: "Amiri", serif;
+  font-family: 'Amiri', serif;
   font-weight: 400;
   font-style: normal;
 }
-
 .amiri-bold {
-  font-family: "Amiri", serif;
+  font-family: 'Amiri', serif;
   font-weight: 700;
   font-style: normal;
 }
-
 .amiri-regular-italic {
-  font-family: "Amiri", serif;
+  font-family: 'Amiri', serif;
   font-weight: 400;
   font-style: italic;
 }
-
 .amiri-bold-italic {
-  font-family: "Amiri", serif;
+  font-family: 'Amiri', serif;
   font-weight: 700;
   font-style: italic;
 }
 
+/* ── Buttons ── */
 button {
   cursor: pointer;
 }
-
 button:disabled {
   cursor: not-allowed;
+  opacity: 0.6;
 }
 
-/* Simple loading spinner */
+.btn-primary {
+  background-color: var(--color-primary-light);
+  color: #fff;
+  border: none;
+  border-radius: var(--radius-btn);
+  padding: 0.6rem 1.4rem;
+  font-size: 1rem;
+  font-family: var(--app-ui-font);
+  font-weight: 600;
+  transition:
+    background-color 0.2s,
+    transform 0.15s;
+}
+.btn-primary:hover {
+  background-color: var(--color-primary);
+  transform: translateY(-1px);
+}
+
+.btn-outline {
+  background: transparent;
+  color: var(--color-primary);
+  border: 1.5px solid var(--color-primary);
+  border-radius: var(--radius-btn);
+  padding: 0.55rem 1.3rem;
+  font-size: 1rem;
+  font-family: var(--app-ui-font);
+  font-weight: 600;
+  transition: all 0.2s;
+}
+.btn-outline:hover {
+  background-color: var(--color-primary);
+  color: #fff;
+}
+
+/* ── Loading spinner ── */
 .spinner {
   display: inline-block;
   width: 16px;
@@ -88,5 +375,41 @@ button:disabled {
 @keyframes spin {
   to {
     transform: rotate(360deg);
+  }
+}
+
+/* ── Animations ── */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.5s ease both;
+}
+.fade-in-up.delay-1 {
+  animation-delay: 0.1s;
+}
+.fade-in-up.delay-2 {
+  animation-delay: 0.2s;
+}
+.fade-in-up.delay-3 {
+  animation-delay: 0.3s;
+}
+
+/* ── Responsive ── */
+@media (max-width: 768px) {
+  app-root {
+    background-size: 200% auto;
+  }
+
+  .feature-card {
+    padding: 1.25rem 1rem;
   }
 }
