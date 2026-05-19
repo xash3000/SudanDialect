@@ -70,7 +70,7 @@ public class WordsControllerTests
     }
 
     [Fact]
-    public async Task GetById_ShouldReturnBadRequest_WhenArgumentOutOfRangeExceptionIsThrown()
+    public async Task GetById_ShouldThrowArgumentOutOfRangeException_WhenInvalidId()
     {
         // arrange
         var publicId = "abcd1234";
@@ -78,13 +78,9 @@ public class WordsControllerTests
             .Setup(wordService => wordService.GetByPublicIdAsync(publicId, It.IsAny<CancellationToken>()))
             .ThrowsAsync(new ArgumentOutOfRangeException("id", "Invalid ID"));
 
-        // act
-        var actionResult = await _sut.GetById(publicId, TestContext.Current.CancellationToken);
-
-        // assert
-        actionResult.Result.Should().NotBeNull();
-        var badRequestResult = actionResult.Result.Should().BeOfType<BadRequestObjectResult>().Subject;
-        badRequestResult.StatusCode.Should().Be(400);
+        // act & assert
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() =>
+            _sut.GetById(publicId, TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -111,7 +107,7 @@ public class WordsControllerTests
     }
 
     [Fact]
-    public async Task Search_ShouldReturnBadRequest_WhenArgumentExceptionIsThrown()
+    public async Task Search_ShouldThrowArgumentException_WhenQueryTooLong()
     {
         // arrange
         var query = new string('a', 300);
@@ -119,13 +115,9 @@ public class WordsControllerTests
             .Setup(ws => ws.SearchAsync(query, It.IsAny<CancellationToken>()))
             .ThrowsAsync(new ArgumentException("Too long"));
 
-        // act
-        var actionResult = await _sut.Search(query, TestContext.Current.CancellationToken);
-
-        // assert
-        actionResult.Result.Should().NotBeNull();
-        var badRequestResult = actionResult.Result.Should().BeOfType<BadRequestObjectResult>().Subject;
-        badRequestResult.StatusCode.Should().Be(400);
+        // act & assert
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            _sut.Search(query, TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -156,7 +148,7 @@ public class WordsControllerTests
     }
 
     [Fact]
-    public async Task BrowseByLetter_ShouldReturnBadRequest_WhenArgumentExceptionIsThrown()
+    public async Task BrowseByLetter_ShouldThrowArgumentException_WhenInvalidLetter()
     {
         // arrange
         var letter = "invalid";
@@ -164,13 +156,9 @@ public class WordsControllerTests
             .Setup(ws => ws.BrowseByLetterAsync(letter, 1, 40, It.IsAny<CancellationToken>()))
             .ThrowsAsync(new ArgumentException("Invalid"));
 
-        // act
-        var actionResult = await _sut.BrowseByLetter(letter, TestContext.Current.CancellationToken);
-
-        // assert
-        actionResult.Result.Should().NotBeNull();
-        var badRequestResult = actionResult.Result.Should().BeOfType<BadRequestObjectResult>().Subject;
-        badRequestResult.StatusCode.Should().Be(400);
+        // act & assert
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            _sut.BrowseByLetter(letter, TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -211,7 +199,7 @@ public class WordsControllerTests
     }
 
     [Fact]
-    public async Task SubmitFeedback_ShouldReturnBadRequest_WhenArgumentExceptionIsThrown()
+    public async Task SubmitFeedback_ShouldThrowArgumentException_WhenInvalidRequest()
     {
         // arrange
         var id = "1";
@@ -220,13 +208,9 @@ public class WordsControllerTests
             .Setup(ws => ws.SubmitFeedbackAsync(id, "Feed", "token", "127.0.0.1", It.IsAny<CancellationToken>()))
             .ThrowsAsync(new ArgumentException("Bad Request"));
 
-        // act
-        var actionResult = await _sut.SubmitFeedback(id, request, TestContext.Current.CancellationToken);
-
-        // assert
-        actionResult.Result.Should().NotBeNull();
-        var badRequestResult = actionResult.Result.Should().BeOfType<BadRequestObjectResult>().Subject;
-        badRequestResult.StatusCode.Should().Be(400);
+        // act & assert
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            _sut.SubmitFeedback(id, request, TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -248,7 +232,7 @@ public class WordsControllerTests
     }
 
     [Fact]
-    public async Task SubmitSuggestion_ShouldReturnBadRequest_WhenArgumentExceptionIsThrown()
+    public async Task SubmitSuggestion_ShouldThrowArgumentException_WhenInvalidRequest()
     {
         // arrange
         var request = new SubmitWordSuggestionRequestDto { Headword = "head", Definition = "def", Email = "test@test.com", CaptchaToken = "tok" };
@@ -256,12 +240,8 @@ public class WordsControllerTests
             .Setup(ws => ws.SubmitSuggestionAsync("head", "def", "test@test.com", "tok", "127.0.0.1", It.IsAny<CancellationToken>()))
             .ThrowsAsync(new ArgumentException("invalid"));
 
-        // act
-        var actionResult = await _sut.SubmitSuggestion(request, TestContext.Current.CancellationToken);
-
-        // assert
-        actionResult.Result.Should().NotBeNull();
-        var badRequestResult = actionResult.Result.Should().BeOfType<BadRequestObjectResult>().Subject;
-        badRequestResult.StatusCode.Should().Be(400);
+        // act & assert
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            _sut.SubmitSuggestion(request, TestContext.Current.CancellationToken));
     }
 }

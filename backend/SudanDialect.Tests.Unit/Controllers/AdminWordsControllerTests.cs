@@ -135,20 +135,16 @@ public class AdminWordsControllerTests
     }
 
     [Fact]
-    public async Task Create_ShouldReturnBadRequest_WhenArgumentExceptionThrown()
+    public async Task Create_ShouldThrowArgumentException_WhenInvalidRequest()
     {
         // arrange
         var request = new AdminCreateWordRequestDto { Headword = "test" };
         _adminWordServiceMock.Setup(s => s.CreateAsync(request, "admin-id", It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new ArgumentException("Invalid"));
 
-        // act
-        var actionResult = await _sut.Create(request, TestContext.Current.CancellationToken);
-
-        // assert
-        actionResult.Result.Should().NotBeNull();
-        var badRequestResult = actionResult.Result.Should().BeOfType<BadRequestObjectResult>().Subject;
-        badRequestResult.StatusCode.Should().Be(400);
+        // act & assert
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            _sut.Create(request, TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -186,7 +182,7 @@ public class AdminWordsControllerTests
     }
 
     [Fact]
-    public async Task Update_ShouldReturnBadRequest_WhenArgumentExceptionThrown()
+    public async Task Update_ShouldThrowArgumentException_WhenInvalidRequest()
     {
         // arrange
         var id = 1;
@@ -194,13 +190,9 @@ public class AdminWordsControllerTests
         _adminWordServiceMock.Setup(s => s.UpdateAsync(id, request, "admin-id", It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new ArgumentException("Invalid"));
 
-        // act
-        var actionResult = await _sut.Update(id, request, TestContext.Current.CancellationToken);
-
-        // assert
-        actionResult.Result.Should().NotBeNull();
-        var badRequestResult = actionResult.Result.Should().BeOfType<BadRequestObjectResult>().Subject;
-        badRequestResult.StatusCode.Should().Be(400);
+        // act & assert
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            _sut.Update(id, request, TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -236,20 +228,16 @@ public class AdminWordsControllerTests
     }
 
     [Fact]
-    public async Task Deactivate_ShouldReturnBadRequest_WhenArgumentOutOfRangeExceptionThrown()
+    public async Task Deactivate_ShouldThrowArgumentOutOfRangeException_WhenInvalidId()
     {
         // arrange
         var id = -1;
         _adminWordServiceMock.Setup(s => s.DeactivateAsync(id, "admin-id", It.IsAny<string?>(), It.IsAny<string?>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new ArgumentOutOfRangeException("id"));
 
-        // act
-        var actionResult = await _sut.Deactivate(id, TestContext.Current.CancellationToken);
-
-        // assert
-        actionResult.Result.Should().NotBeNull();
-        var badRequestResult = actionResult.Result.Should().BeOfType<BadRequestObjectResult>().Subject;
-        badRequestResult.StatusCode.Should().Be(400);
+        // act & assert
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() =>
+            _sut.Deactivate(id, TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -297,37 +285,29 @@ public class AdminWordsControllerTests
     }
 
     [Fact]
-    public async Task GetAuditPage_ShouldReturnBadRequest_WhenArgumentExceptionThrown()
+    public async Task GetAuditPage_ShouldThrowArgumentException_WhenInvalidQuery()
     {
         // arrange
         var query = new AdminWordEditAuditQueryDto();
         _adminWordServiceMock.Setup(s => s.GetAuditPageAsync(query, It.IsAny<CancellationToken>()))
             .ThrowsAsync(new ArgumentException("Invalid"));
 
-        // act
-        var actionResult = await _sut.GetAuditPage(query, TestContext.Current.CancellationToken);
-
-        // assert
-        actionResult.Result.Should().NotBeNull();
-        var badRequestResult = actionResult.Result.Should().BeOfType<BadRequestObjectResult>().Subject;
-        badRequestResult.StatusCode.Should().Be(400);
+        // act & assert
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            _sut.GetAuditPage(query, TestContext.Current.CancellationToken));
     }
 
     [Fact]
-    public async Task GetPage_ShouldReturnBadRequest_WhenArgumentExceptionThrown()
+    public async Task GetPage_ShouldThrowArgumentException_WhenInvalidQuery()
     {
         // arrange
         var query = new AdminWordTableQueryDto();
         _adminWordServiceMock.Setup(s => s.GetPageAsync(query, It.IsAny<CancellationToken>()))
             .ThrowsAsync(new ArgumentException("Invalid"));
 
-        // act
-        var actionResult = await _sut.GetPage(query, TestContext.Current.CancellationToken);
-
-        // assert
-        actionResult.Result.Should().NotBeNull();
-        var badRequestResult = actionResult.Result.Should().BeOfType<BadRequestObjectResult>().Subject;
-        badRequestResult.StatusCode.Should().Be(400);
+        // act & assert
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            _sut.GetPage(query, TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -366,20 +346,16 @@ public class AdminWordsControllerTests
     }
 
     [Fact]
-    public async Task GetById_ShouldReturnBadRequest_WhenArgumentOutOfRangeExceptionThrown()
+    public async Task GetById_ShouldThrowArgumentOutOfRangeException_WhenInvalidId()
     {
         // arrange
         var id = -1;
         _adminWordServiceMock.Setup(s => s.GetByIdAsync(id, It.IsAny<CancellationToken>()))
             .ThrowsAsync(new ArgumentOutOfRangeException("id"));
 
-        // act
-        var actionResult = await _sut.GetById(id, TestContext.Current.CancellationToken);
-
-        // assert
-        actionResult.Result.Should().NotBeNull();
-        var badRequestResult = actionResult.Result.Should().BeOfType<BadRequestObjectResult>().Subject;
-        badRequestResult.StatusCode.Should().Be(400);
+        // act & assert
+        await Assert.ThrowsAsync<ArgumentOutOfRangeException>(() =>
+            _sut.GetById(id, TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -411,7 +387,7 @@ public class AdminWordsControllerTests
     }
 
     [Fact]
-    public async Task GetAuditPageByWordId_ShouldReturnBadRequest_WhenArgumentExceptionThrown()
+    public async Task GetAuditPageByWordId_ShouldThrowArgumentException_WhenInvalidId()
     {
         // arrange
         var id = 1;
@@ -419,12 +395,8 @@ public class AdminWordsControllerTests
         _adminWordServiceMock.Setup(s => s.GetAuditPageByWordIdAsync(id, query, It.IsAny<CancellationToken>()))
             .ThrowsAsync(new ArgumentException("Invalid"));
 
-        // act
-        var actionResult = await _sut.GetAuditPageByWordId(id, query, TestContext.Current.CancellationToken);
-
-        // assert
-        actionResult.Result.Should().NotBeNull();
-        var badRequestResult = actionResult.Result.Should().BeOfType<BadRequestObjectResult>().Subject;
-        badRequestResult.StatusCode.Should().Be(400);
+        // act & assert
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            _sut.GetAuditPageByWordId(id, query, TestContext.Current.CancellationToken));
     }
 }

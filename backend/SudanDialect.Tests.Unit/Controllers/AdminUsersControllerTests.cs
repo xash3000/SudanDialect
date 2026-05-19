@@ -143,24 +143,20 @@ public class AdminUsersControllerTests
     }
 
     [Fact]
-    public async Task Create_ShouldReturnBadRequest_WhenArgumentExceptionThrown()
+    public async Task Create_ShouldThrowArgumentException_WhenInvalidRequest()
     {
         // arrange
         var request = new AdminUpsertUserRequestDto { Username = "newuser", Password = "password" };
         _adminUserServiceMock.Setup(s => s.CreateAsync(request, It.IsAny<CancellationToken>()))
             .ThrowsAsync(new ArgumentException("Invalid"));
 
-        // act
-        var actionResult = await _sut.Create(request, TestContext.Current.CancellationToken);
-
-        // assert
-        actionResult.Result.Should().NotBeNull();
-        var badRequestResult = actionResult.Result.Should().BeOfType<BadRequestObjectResult>().Subject;
-        badRequestResult.StatusCode.Should().Be(400);
+        // act & assert
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            _sut.Create(request, TestContext.Current.CancellationToken));
     }
 
     [Fact]
-    public async Task Update_ShouldReturnBadRequest_WhenArgumentExceptionThrown()
+    public async Task Update_ShouldThrowArgumentException_WhenInvalidRequest()
     {
         // arrange
         var id = "2";
@@ -168,13 +164,9 @@ public class AdminUsersControllerTests
         _adminUserServiceMock.Setup(s => s.UpdateAsync(id, request, It.IsAny<CancellationToken>()))
             .ThrowsAsync(new ArgumentException("Invalid"));
 
-        // act
-        var actionResult = await _sut.Update(id, request, TestContext.Current.CancellationToken);
-
-        // assert
-        actionResult.Result.Should().NotBeNull();
-        var badRequestResult = actionResult.Result.Should().BeOfType<BadRequestObjectResult>().Subject;
-        badRequestResult.StatusCode.Should().Be(400);
+        // act & assert
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            _sut.Update(id, request, TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -194,20 +186,16 @@ public class AdminUsersControllerTests
     }
 
     [Fact]
-    public async Task Delete_ShouldReturnBadRequest_WhenArgumentExceptionThrown()
+    public async Task Delete_ShouldThrowArgumentException_WhenInvalidRequest()
     {
         // arrange
         var id = "other-user-id";
         _adminUserServiceMock.Setup(s => s.DeleteAsync(id, It.IsAny<CancellationToken>()))
             .ThrowsAsync(new ArgumentException("Invalid"));
 
-        // act
-        var actionResult = await _sut.Delete(id, TestContext.Current.CancellationToken);
-
-        // assert
-        actionResult.Result.Should().NotBeNull();
-        var badRequestResult = actionResult.Result.Should().BeOfType<BadRequestObjectResult>().Subject;
-        badRequestResult.StatusCode.Should().Be(400);
+        // act & assert
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            _sut.Delete(id, TestContext.Current.CancellationToken));
     }
 
     [Fact]

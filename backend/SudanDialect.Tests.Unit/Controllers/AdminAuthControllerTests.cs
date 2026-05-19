@@ -78,7 +78,7 @@ public class AdminAuthControllerTests
     }
 
     [Fact]
-    public async Task Login_ShouldReturnProblem_WhenInvalidOperationExceptionIsThrown()
+    public async Task Login_ShouldThrowInvalidOperationException_WhenJwtConfigMissing()
     {
         // arrange
         var request = new AdminLoginRequestDto { Username = "admin", Password = "password" };
@@ -86,14 +86,9 @@ public class AdminAuthControllerTests
             .Setup(s => s.LoginAsync(request.Username, request.Password, It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("JWT configuration missing"));
 
-        // act
-        var actionResult = await _sut.Login(request, TestContext.Current.CancellationToken);
-
-        // assert
-        var objectResult = actionResult.Result.Should().BeOfType<ObjectResult>().Subject;
-        objectResult.StatusCode.Should().Be(500);
-        var problem = objectResult.Value.Should().BeOfType<ProblemDetails>().Subject;
-        problem.Title.Should().Contain("JWT");
+        // act & assert
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            _sut.Login(request, TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -172,7 +167,7 @@ public class AdminAuthControllerTests
     }
 
     [Fact]
-    public async Task Refresh_ShouldReturnProblem_WhenInvalidOperationExceptionIsThrown()
+    public async Task Refresh_ShouldThrowInvalidOperationException_WhenTokenRefreshFails()
     {
         // arrange
         _sut.Request.Headers.Append("Cookie", $"{AdminAuthCookieNames.RefreshToken}=valid-token");
@@ -180,12 +175,9 @@ public class AdminAuthControllerTests
             .Setup(s => s.RefreshAsync("valid-token", It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException());
 
-        // act
-        var actionResult = await _sut.Refresh(TestContext.Current.CancellationToken);
-
-        // assert
-        var objectResult = actionResult.Result.Should().BeOfType<ObjectResult>().Subject;
-        objectResult.StatusCode.Should().Be(500);
+        // act & assert
+        await Assert.ThrowsAsync<InvalidOperationException>(() =>
+            _sut.Refresh(TestContext.Current.CancellationToken));
     }
 
     [Fact]

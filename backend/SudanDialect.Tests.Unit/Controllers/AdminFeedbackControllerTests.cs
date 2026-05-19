@@ -53,7 +53,7 @@ public class AdminFeedbackControllerTests
     }
 
     [Fact]
-    public async Task GetPage_ShouldReturnBadRequest_WhenArgumentExceptionThrown()
+    public async Task GetPage_ShouldThrowArgumentException_WhenInvalidQuery()
     {
         // arrange
         var query = new AdminFeedbackQueryDto();
@@ -61,13 +61,9 @@ public class AdminFeedbackControllerTests
             .Setup(s => s.GetPageAsync(query, It.IsAny<CancellationToken>()))
             .ThrowsAsync(new ArgumentException("Invalid"));
 
-        // act
-        var actionResult = await _sut.GetPage(query, TestContext.Current.CancellationToken);
-
-        // assert
-        actionResult.Result.Should().NotBeNull();
-        var badRequestResult = actionResult.Result.Should().BeOfType<BadRequestObjectResult>().Subject;
-        badRequestResult.StatusCode.Should().Be(400);
+        // act & assert
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            _sut.GetPage(query, TestContext.Current.CancellationToken));
     }
 
     [Fact]
@@ -110,7 +106,7 @@ public class AdminFeedbackControllerTests
     }
 
     [Fact]
-    public async Task SetResolved_ShouldReturnBadRequest_WhenArgumentExceptionThrown()
+    public async Task SetResolved_ShouldThrowArgumentException_WhenInvalidRequest()
     {
         // arrange
         var id = 1;
@@ -120,12 +116,8 @@ public class AdminFeedbackControllerTests
             .Setup(s => s.SetResolvedAsync(id, request.Resolved, It.IsAny<CancellationToken>()))
             .ThrowsAsync(new ArgumentException("Invalid"));
 
-        // act
-        var actionResult = await _sut.SetResolved(id, request, TestContext.Current.CancellationToken);
-
-        // assert
-        actionResult.Result.Should().NotBeNull();
-        var badRequestResult = actionResult.Result.Should().BeOfType<BadRequestObjectResult>().Subject;
-        badRequestResult.StatusCode.Should().Be(400);
+        // act & assert
+        await Assert.ThrowsAsync<ArgumentException>(() =>
+            _sut.SetResolved(id, request, TestContext.Current.CancellationToken));
     }
 }
