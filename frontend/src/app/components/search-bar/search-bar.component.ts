@@ -20,6 +20,7 @@ export class SearchBarComponent {
   @Output() wordSelected = new EventEmitter<WordSearchResult>();
   @Output() inputFocused = new EventEmitter<void>();
   @Output() inputBlurred = new EventEmitter<void>();
+  @Output() searchPressed = new EventEmitter<void>();
 
   protected onInput(value: string): void {
     this.queryChanged.emit(value);
@@ -42,6 +43,7 @@ export class SearchBarComponent {
     }
 
     this.hideMobileKeyboardKeepingFocus(input);
+    this.searchPressed.emit();
   }
 
   protected selectWord(word: WordSearchResult, event: MouseEvent): void {

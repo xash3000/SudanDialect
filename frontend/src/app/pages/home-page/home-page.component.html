@@ -6,7 +6,7 @@
 
     <app-search-bar
       [query]="searchQuery()"
-      [results]="results()"
+      [results]="displayedResults()"
       [isLoading]="isLoading()"
       [showDropdown]="showDropdown()"
       [hasRequestError]="hasRequestError()"
@@ -15,6 +15,7 @@
       (inputFocused)="onSearchInputFocus()"
       (inputBlurred)="onSearchInputBlur()"
       (wordSelected)="selectWord($event)"
+      (searchPressed)="onMobileSearchPressed()"
 
       class="app-search-bar"
     />

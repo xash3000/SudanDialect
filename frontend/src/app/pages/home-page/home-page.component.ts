@@ -42,9 +42,15 @@ export class HomePageComponent implements OnDestroy {
   protected readonly selectedWord = signal<Word | null>(null);
   protected readonly isLoading = signal(false);
   protected readonly isInputFocused = signal(false);
+  protected readonly isMobileSearchActive = signal(false);
   protected readonly hasWordLoadError = signal(false);
   protected readonly showDropdown = computed(() => {
-    return this.isInputFocused() && this.searchQuery().trim().length > 0;
+    const hasQuery = this.searchQuery().trim().length > 0;
+    return (this.isInputFocused() || this.isMobileSearchActive()) && hasQuery;
+  });
+  protected readonly displayedResults = computed(() => {
+    const allResults = this.results();
+    return this.isMobileSearchActive() ? allResults.slice(0, 10) : allResults;
   });
   protected readonly hasRequestError = signal(false);
   protected readonly isSuggestionFormOpen = signal(false);
@@ -133,6 +139,7 @@ export class HomePageComponent implements OnDestroy {
   }
 
   protected onSearchInput(value: string): void {
+    this.isMobileSearchActive.set(false);
     this.searchQuery.set(value);
 
     const trimmedQuery = value.trim();
@@ -147,6 +154,7 @@ export class HomePageComponent implements OnDestroy {
   }
 
   protected onSearchInputFocus(): void {
+    this.isMobileSearchActive.set(false);
     this.isInputFocused.set(true);
 
     const trimmedQuery = this.searchQuery().trim();
@@ -158,7 +166,13 @@ export class HomePageComponent implements OnDestroy {
   }
 
   protected onSearchInputBlur(): void {
+    this.isMobileSearchActive.set(false);
     this.isInputFocused.set(false);
+  }
+
+  protected onMobileSearchPressed(): void {
+    this.isMobileSearchActive.set(true);
+    this.isInputFocused.set(true);
   }
 
   protected selectWord(word: WordSearchResult): void {
