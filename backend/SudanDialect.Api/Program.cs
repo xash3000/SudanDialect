@@ -10,6 +10,7 @@ using SudanDialect.Api.Configuration;
 using SudanDialect.Api.Data;
 using SudanDialect.Api.Interfaces.Repositories;
 using SudanDialect.Api.Interfaces.Services;
+using SudanDialect.Api.Middlewares;
 using SudanDialect.Api.Repositories;
 using SudanDialect.Api.Services;
 using SudanDialect.Api.Utilities;
@@ -22,6 +23,8 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Logging.AddFilter("Microsoft.EntityFrameworkCore.Database.Command", LogLevel.Warning);
 
 builder.Services.AddControllers();
+builder.Services.AddProblemDetails();
+builder.Services.AddExceptionHandler<GlobalExceptionHandler>();
 builder.Services.AddOpenApi();
 
 builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptions.SectionName));
@@ -202,6 +205,8 @@ app.UseForwardedHeaders(new ForwardedHeadersOptions
 {
     ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto
 });
+
+app.UseExceptionHandler();
 
 if (app.Environment.IsDevelopment())
 {

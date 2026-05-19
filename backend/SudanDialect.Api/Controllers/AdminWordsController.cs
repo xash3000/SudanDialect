@@ -35,15 +35,8 @@ public sealed class AdminWordsController : ControllerBase
         [FromQuery] AdminWordEditAuditQueryDto request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var page = await _adminWordService.GetAuditPageAsync(request, cancellationToken);
-            return Ok(page);
-        }
-        catch (ArgumentException exception)
-        {
-            return BadRequest(new { error = exception.Message });
-        }
+        var page = await _adminWordService.GetAuditPageAsync(request, cancellationToken);
+        return Ok(page);
     }
 
     [HttpGet]
@@ -53,15 +46,8 @@ public sealed class AdminWordsController : ControllerBase
         [FromQuery] AdminWordTableQueryDto request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var page = await _adminWordService.GetPageAsync(request, cancellationToken);
-            return Ok(page);
-        }
-        catch (ArgumentException exception)
-        {
-            return BadRequest(new { error = exception.Message });
-        }
+        var page = await _adminWordService.GetPageAsync(request, cancellationToken);
+        return Ok(page);
     }
 
     [HttpGet("{id:int}")]
@@ -72,20 +58,13 @@ public sealed class AdminWordsController : ControllerBase
         [FromRoute] int id,
         CancellationToken cancellationToken)
     {
-        try
+        var word = await _adminWordService.GetByIdAsync(id, cancellationToken);
+        if (word is null)
         {
-            var word = await _adminWordService.GetByIdAsync(id, cancellationToken);
-            if (word is null)
-            {
-                return NotFound();
-            }
+            return NotFound();
+        }
 
-            return Ok(word);
-        }
-        catch (ArgumentOutOfRangeException exception)
-        {
-            return BadRequest(new { error = exception.Message });
-        }
+        return Ok(word);
     }
 
     [HttpGet("{id:int}/audit")]
@@ -96,15 +75,8 @@ public sealed class AdminWordsController : ControllerBase
         [FromQuery] AdminWordEditAuditQueryDto request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var page = await _adminWordService.GetAuditPageByWordIdAsync(id, request, cancellationToken);
-            return Ok(page);
-        }
-        catch (ArgumentException exception)
-        {
-            return BadRequest(new { error = exception.Message });
-        }
+        var page = await _adminWordService.GetAuditPageByWordIdAsync(id, request, cancellationToken);
+        return Ok(page);
     }
 
     [HttpPost]
@@ -120,21 +92,14 @@ public sealed class AdminWordsController : ControllerBase
             return Unauthorized(new { error = "Authenticated user id is missing." });
         }
 
-        try
-        {
-            var createdWord = await _adminWordService.CreateAsync(
-                request,
-                adminUserId,
-                HttpContext.Connection.RemoteIpAddress?.ToString(),
-                Request.Headers.UserAgent.ToString(),
-                cancellationToken);
+        var createdWord = await _adminWordService.CreateAsync(
+            request,
+            adminUserId,
+            HttpContext.Connection.RemoteIpAddress?.ToString(),
+            Request.Headers.UserAgent.ToString(),
+            cancellationToken);
 
-            return CreatedAtAction(nameof(GetById), new { id = createdWord.Id }, createdWord);
-        }
-        catch (ArgumentException exception)
-        {
-            return BadRequest(new { error = exception.Message });
-        }
+        return CreatedAtAction(nameof(GetById), new { id = createdWord.Id }, createdWord);
     }
 
     [HttpPut("{id:int}")]
@@ -152,27 +117,20 @@ public sealed class AdminWordsController : ControllerBase
             return Unauthorized(new { error = "Authenticated user id is missing." });
         }
 
-        try
-        {
-            var updatedWord = await _adminWordService.UpdateAsync(
-                id,
-                request,
-                adminUserId,
-                HttpContext.Connection.RemoteIpAddress?.ToString(),
-                Request.Headers.UserAgent.ToString(),
-                cancellationToken);
+        var updatedWord = await _adminWordService.UpdateAsync(
+            id,
+            request,
+            adminUserId,
+            HttpContext.Connection.RemoteIpAddress?.ToString(),
+            Request.Headers.UserAgent.ToString(),
+            cancellationToken);
 
-            if (updatedWord is null)
-            {
-                return NotFound();
-            }
-
-            return Ok(updatedWord);
-        }
-        catch (ArgumentException exception)
+        if (updatedWord is null)
         {
-            return BadRequest(new { error = exception.Message });
+            return NotFound();
         }
+
+        return Ok(updatedWord);
     }
 
     [HttpDelete("{id:int}")]
@@ -187,25 +145,18 @@ public sealed class AdminWordsController : ControllerBase
             return Unauthorized(new { error = "Authenticated user id is missing." });
         }
 
-        try
-        {
-            var deactivated = await _adminWordService.DeactivateAsync(
-                id,
-                adminUserId,
-                HttpContext.Connection.RemoteIpAddress?.ToString(),
-                Request.Headers.UserAgent.ToString(),
-                cancellationToken);
+        var deactivated = await _adminWordService.DeactivateAsync(
+            id,
+            adminUserId,
+            HttpContext.Connection.RemoteIpAddress?.ToString(),
+            Request.Headers.UserAgent.ToString(),
+            cancellationToken);
 
-            if (!deactivated)
-            {
-                return NotFound();
-            }
-
-            return Ok(new { id, deactivated = true });
-        }
-        catch (ArgumentOutOfRangeException exception)
+        if (!deactivated)
         {
-            return BadRequest(new { error = exception.Message });
+            return NotFound();
         }
+
+        return Ok(new { id, deactivated = true });
     }
 }

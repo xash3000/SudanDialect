@@ -35,15 +35,8 @@ public sealed class AdminUsersController : ControllerBase
         [FromBody] AdminUpsertUserRequestDto request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var createdUser = await _adminUserService.CreateAsync(request, cancellationToken);
-            return Created($"/api/admin/users/{createdUser.Id}", createdUser);
-        }
-        catch (ArgumentException exception)
-        {
-            return BadRequest(new { error = exception.Message });
-        }
+        var createdUser = await _adminUserService.CreateAsync(request, cancellationToken);
+        return Created($"/api/admin/users/{createdUser.Id}", createdUser);
     }
 
     [HttpPut("{id}")]
@@ -55,20 +48,13 @@ public sealed class AdminUsersController : ControllerBase
         [FromBody] AdminUpsertUserRequestDto request,
         CancellationToken cancellationToken)
     {
-        try
+        var updatedUser = await _adminUserService.UpdateAsync(id, request, cancellationToken);
+        if (updatedUser is null)
         {
-            var updatedUser = await _adminUserService.UpdateAsync(id, request, cancellationToken);
-            if (updatedUser is null)
-            {
-                return NotFound();
-            }
+            return NotFound();
+        }
 
-            return Ok(updatedUser);
-        }
-        catch (ArgumentException exception)
-        {
-            return BadRequest(new { error = exception.Message });
-        }
+        return Ok(updatedUser);
     }
 
     [HttpDelete("{id}")]
@@ -77,26 +63,19 @@ public sealed class AdminUsersController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<object>> Delete([FromRoute] string id, CancellationToken cancellationToken)
     {
-        try
+        var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
+        if (!string.IsNullOrWhiteSpace(currentUserId)
+            && string.Equals(currentUserId, id, StringComparison.Ordinal))
         {
-            var currentUserId = User.FindFirstValue(ClaimTypes.NameIdentifier);
-            if (!string.IsNullOrWhiteSpace(currentUserId)
-                && string.Equals(currentUserId, id, StringComparison.Ordinal))
-            {
-                return BadRequest(new { error = "Cannot delete your own account." });
-            }
-
-            var deleted = await _adminUserService.DeleteAsync(id, cancellationToken);
-            if (!deleted)
-            {
-                return NotFound();
-            }
-
-            return Ok(new { id, deleted = true });
+            return BadRequest(new { error = "Cannot delete your own account." });
         }
-        catch (ArgumentException exception)
+
+        var deleted = await _adminUserService.DeleteAsync(id, cancellationToken);
+        if (!deleted)
         {
-            return BadRequest(new { error = exception.Message });
+            return NotFound();
         }
+
+        return Ok(new { id, deleted = true });
     }
 }

@@ -26,20 +26,13 @@ public sealed class WordsController : ControllerBase
         [FromRoute] string id,
         CancellationToken cancellationToken)
     {
-        try
+        var word = await _wordService.GetByPublicIdAsync(id, cancellationToken);
+        if (word is null)
         {
-            var word = await _wordService.GetByPublicIdAsync(id, cancellationToken);
-            if (word is null)
-            {
-                return NotFound();
-            }
+            return NotFound();
+        }
 
-            return Ok(word);
-        }
-        catch (ArgumentException exception)
-        {
-            return BadRequest(new { error = exception.Message });
-        }
+        return Ok(word);
     }
 
     [HttpGet("search")]
@@ -50,15 +43,8 @@ public sealed class WordsController : ControllerBase
         [FromQuery] string? query,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var results = await _wordService.SearchAsync(query, cancellationToken);
-            return Ok(results);
-        }
-        catch (ArgumentException exception)
-        {
-            return BadRequest(new { error = exception.Message });
-        }
+        var results = await _wordService.SearchAsync(query, cancellationToken);
+        return Ok(results);
     }
 
     [HttpGet("browse")]
@@ -71,15 +57,8 @@ public sealed class WordsController : ControllerBase
         [FromQuery] int page = 1,
         [FromQuery] int pageSize = 40)
     {
-        try
-        {
-            var results = await _wordService.BrowseByLetterAsync(letter, page, pageSize, cancellationToken);
-            return Ok(results);
-        }
-        catch (ArgumentException exception)
-        {
-            return BadRequest(new { error = exception.Message });
-        }
+        var results = await _wordService.BrowseByLetterAsync(letter, page, pageSize, cancellationToken);
+        return Ok(results);
     }
 
     [HttpPost("{id}/feedback")]
@@ -91,26 +70,19 @@ public sealed class WordsController : ControllerBase
         [FromBody] SubmitWordFeedbackRequestDto request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var submitted = await _wordService.SubmitFeedbackAsync(
-                id,
-                request.FeedbackText,
-                request.CaptchaToken,
-                HttpContext.Connection.RemoteIpAddress?.ToString(),
-                cancellationToken);
+        var submitted = await _wordService.SubmitFeedbackAsync(
+            id,
+            request.FeedbackText,
+            request.CaptchaToken,
+            HttpContext.Connection.RemoteIpAddress?.ToString(),
+            cancellationToken);
 
-            if (!submitted)
-            {
-                return NotFound();
-            }
-
-            return Ok(new { submitted = true });
-        }
-        catch (ArgumentException exception)
+        if (!submitted)
         {
-            return BadRequest(new { error = exception.Message });
+            return NotFound();
         }
+
+        return Ok(new { submitted = true });
     }
 
     [HttpPost("suggestions")]
@@ -120,21 +92,14 @@ public sealed class WordsController : ControllerBase
         [FromBody] SubmitWordSuggestionRequestDto request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var submitted = await _wordService.SubmitSuggestionAsync(
-                request.Headword,
-                request.Definition,
-                request.Email,
-                request.CaptchaToken,
-                HttpContext.Connection.RemoteIpAddress?.ToString(),
-                cancellationToken);
+        var submitted = await _wordService.SubmitSuggestionAsync(
+            request.Headword,
+            request.Definition,
+            request.Email,
+            request.CaptchaToken,
+            HttpContext.Connection.RemoteIpAddress?.ToString(),
+            cancellationToken);
 
-            return Ok(new { submitted });
-        }
-        catch (ArgumentException exception)
-        {
-            return BadRequest(new { error = exception.Message });
-        }
+        return Ok(new { submitted });
     }
 }

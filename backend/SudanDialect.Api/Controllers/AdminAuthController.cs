@@ -27,34 +27,24 @@ public sealed class AdminAuthController : ControllerBase
         [FromBody] AdminLoginRequestDto request,
         CancellationToken cancellationToken)
     {
-        try
+        var authResult = await _adminAuthService.LoginAsync(request.Username, request.Password, cancellationToken);
+        if (authResult is null)
         {
-            var authResult = await _adminAuthService.LoginAsync(request.Username, request.Password, cancellationToken);
-            if (authResult is null)
-            {
-                return Unauthorized(new { error = "اسم المستخدم أو كلمة المرور غير صحيحة." });
-            }
-
-            AppendAuthCookies(
-                authResult.Value.AccessToken,
-                authResult.Value.AccessExpiresAtUtc,
-                authResult.Value.RefreshToken,
-                authResult.Value.RefreshExpiresAtUtc);
-
-            return Ok(new AdminLoginResponseDto
-            {
-                ExpiresAtUtc = authResult.Value.AccessExpiresAtUtc,
-                Username = authResult.Value.Username,
-                Roles = authResult.Value.Roles
-            });
+            return Unauthorized(new { error = "اسم المستخدم أو كلمة المرور غير صحيحة." });
         }
-        catch (InvalidOperationException)
+
+        AppendAuthCookies(
+            authResult.Value.AccessToken,
+            authResult.Value.AccessExpiresAtUtc,
+            authResult.Value.RefreshToken,
+            authResult.Value.RefreshExpiresAtUtc);
+
+        return Ok(new AdminLoginResponseDto
         {
-            return Problem(
-                title: "JWT configuration is missing",
-                detail: "Set Jwt:SigningKey in configuration or user-secrets.",
-                statusCode: StatusCodes.Status500InternalServerError);
-        }
+            ExpiresAtUtc = authResult.Value.AccessExpiresAtUtc,
+            Username = authResult.Value.Username,
+            Roles = authResult.Value.Roles
+        });
     }
 
     [Authorize]
@@ -78,35 +68,25 @@ public sealed class AdminAuthController : ControllerBase
             return Unauthorized();
         }
 
-        try
+        var authResult = await _adminAuthService.RefreshAsync(refreshTokenValue, cancellationToken);
+        if (authResult is null)
         {
-            var authResult = await _adminAuthService.RefreshAsync(refreshTokenValue, cancellationToken);
-            if (authResult is null)
-            {
-                AppendSignOutCookies();
-                return Unauthorized();
-            }
-
-            AppendAuthCookies(
-                authResult.Value.AccessToken,
-                authResult.Value.AccessExpiresAtUtc,
-                authResult.Value.RefreshToken,
-                authResult.Value.RefreshExpiresAtUtc);
-
-            return Ok(new AdminLoginResponseDto
-            {
-                ExpiresAtUtc = authResult.Value.AccessExpiresAtUtc,
-                Username = authResult.Value.Username,
-                Roles = authResult.Value.Roles
-            });
+            AppendSignOutCookies();
+            return Unauthorized();
         }
-        catch (InvalidOperationException)
+
+        AppendAuthCookies(
+            authResult.Value.AccessToken,
+            authResult.Value.AccessExpiresAtUtc,
+            authResult.Value.RefreshToken,
+            authResult.Value.RefreshExpiresAtUtc);
+
+        return Ok(new AdminLoginResponseDto
         {
-            return Problem(
-                title: "JWT configuration is missing",
-                detail: "Set Jwt:SigningKey in configuration or user-secrets.",
-                statusCode: StatusCodes.Status500InternalServerError);
-        }
+            ExpiresAtUtc = authResult.Value.AccessExpiresAtUtc,
+            Username = authResult.Value.Username,
+            Roles = authResult.Value.Roles
+        });
     }
 
     [HttpPost("logout")]

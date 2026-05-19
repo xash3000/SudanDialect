@@ -24,15 +24,8 @@ public sealed class AdminWordSuggestionsController : ControllerBase
         [FromQuery] AdminWordSuggestionQueryDto request,
         CancellationToken cancellationToken)
     {
-        try
-        {
-            var page = await _adminWordSuggestionService.GetPageAsync(request, cancellationToken);
-            return Ok(page);
-        }
-        catch (ArgumentException exception)
-        {
-            return BadRequest(new { error = exception.Message });
-        }
+        var page = await _adminWordSuggestionService.GetPageAsync(request, cancellationToken);
+        return Ok(page);
     }
 
     [HttpPatch("{id:int}/resolved")]
@@ -44,19 +37,12 @@ public sealed class AdminWordSuggestionsController : ControllerBase
         [FromBody] AdminSetWordSuggestionResolvedRequestDto request,
         CancellationToken cancellationToken)
     {
-        try
+        var updated = await _adminWordSuggestionService.SetResolvedAsync(id, request.Resolved, cancellationToken);
+        if (!updated)
         {
-            var updated = await _adminWordSuggestionService.SetResolvedAsync(id, request.Resolved, cancellationToken);
-            if (!updated)
-            {
-                return NotFound();
-            }
+            return NotFound();
+        }
 
-            return Ok(new { id, resolved = request.Resolved });
-        }
-        catch (ArgumentException exception)
-        {
-            return BadRequest(new { error = exception.Message });
-        }
+        return Ok(new { id, resolved = request.Resolved });
     }
 }
