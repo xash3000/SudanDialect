@@ -13,7 +13,6 @@ public sealed class WordService : IWordService
 {
     private const int MaxQueryLength = 200;
     private const int MaxResults = 10;
-    private const int MaxBrowseResults = 20000;
     private const int MaxBrowsePageSize = 60;
     private const int MaxFeedbackLength = 2000;
     private const int MaxSuggestionHeadwordLength = 200;
@@ -129,21 +128,14 @@ public sealed class WordService : IWordService
             };
         }
 
-        var words = await _wordRepository.GetActiveByFirstLetterAsync(
+        var pagedResults = await _wordRepository.GetActiveByFirstLetterPagedAsync(
             trimmedLetter,
             normalizedLetter,
-            MaxBrowseResults,
+            page,
+            pageSize,
             cancellationToken);
 
-        var sortedWords = words
-            .OrderBy(word => word.Headword, Comparer<string>.Create((first, second) =>
-                ArabicCompareInfo.Compare(first, second, CompareOptions.None)))
-            .ToList();
-
-        var totalCount = sortedWords.Count;
-        var totalPages = totalCount == 0 ? 0 : (int)Math.Ceiling(totalCount / (double)pageSize);
-
-        if (totalPages == 0)
+        if (pagedResults.TotalPages == 0)
         {
             return new WordBrowsePageDto
             {
@@ -155,11 +147,7 @@ public sealed class WordService : IWordService
             };
         }
 
-        var boundedPage = Math.Min(page, totalPages);
-        var skip = (boundedPage - 1) * pageSize;
-        var pagedItems = sortedWords
-            .Skip(skip)
-            .Take(pageSize)
+        var pagedItems = pagedResults.Items
             .Select(word => new WordSummaryDto
             {
                 Id = _publicIdEncoder.EncodeWordId(word.Id),
@@ -170,10 +158,10 @@ public sealed class WordService : IWordService
         return new WordBrowsePageDto
         {
             Items = pagedItems,
-            Page = boundedPage,
+            Page = pagedResults.BoundedPage,
             PageSize = pageSize,
-            TotalCount = totalCount,
-            TotalPages = totalPages
+            TotalCount = pagedResults.TotalCount,
+            TotalPages = pagedResults.TotalPages
         };
     }
 

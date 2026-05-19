@@ -34,26 +34,36 @@ public sealed class WordRepository : IWordRepository
         return word;
     }
 
-    public async Task<IReadOnlyList<Word>> GetActiveByFirstLetterAsync(
+    public async Task<(IReadOnlyList<Word> Items, int TotalCount, int TotalPages, int BoundedPage)> GetActiveByFirstLetterPagedAsync(
         string rawLetter,
         string normalizedLetter,
-        int take,
+        int page,
+        int pageSize,
         CancellationToken cancellationToken = default)
     {
         if (string.IsNullOrWhiteSpace(rawLetter) || string.IsNullOrWhiteSpace(normalizedLetter))
         {
-            return Array.Empty<Word>();
+            return (Array.Empty<Word>(), 0, 0, 1);
         }
 
-        return await _dbContext.Words
+        var query = _dbContext.Words
             .AsNoTracking()
             .Where(word => word.IsActive)
             .Where(word =>
                 word.Headword.StartsWith(rawLetter)
-                || word.NormalizedHeadword.StartsWith(normalizedLetter))
+                || word.NormalizedHeadword.StartsWith(normalizedLetter));
+
+        var totalCount = await query.CountAsync(cancellationToken);
+        var totalPages = totalCount == 0 ? 0 : (int)Math.Ceiling(totalCount / (double)pageSize);
+        var boundedPage = totalPages == 0 ? 1 : Math.Min(page, totalPages);
+
+        var items = await query
             .OrderBy(word => word.Headword)
-            .Take(take)
+            .Skip((boundedPage - 1) * pageSize)
+            .Take(pageSize)
             .ToListAsync(cancellationToken);
+
+        return (items, totalCount, totalPages, boundedPage);
     }
 
     public async Task<IReadOnlyList<WordSearchCandidateDto>> SearchActiveByNormalizedQueryAsync(

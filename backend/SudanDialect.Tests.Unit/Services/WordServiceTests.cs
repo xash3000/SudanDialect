@@ -136,8 +136,8 @@ public class WordServiceTests
     public async Task BrowseByLetterAsync_ShouldReturnEmpty_WhenLetterIsValidButNoResults()
     {
         // arrange
-        _wordRepositoryMock.Setup(w => w.GetActiveByFirstLetterAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new List<Word>());
+        _wordRepositoryMock.Setup(w => w.GetActiveByFirstLetterPagedAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((new List<Word>(), 0, 0, 1));
 
         // act
         var results = await _sut.BrowseByLetterAsync("ب", 1, 40, TestContext.Current.CancellationToken);
@@ -241,11 +241,10 @@ public class WordServiceTests
         // arrange
         var words = new List<Word>
         {
-            new Word { Id = 1, Headword = "ي" },
-            new Word { Id = 2, Headword = "ا" }
+            new Word { Id = 2, Headword = "ا" } // DB returns sorted implicitly based on query skip/take
         };
-        _wordRepositoryMock.Setup(w => w.GetActiveByFirstLetterAsync("ا", "ا", It.IsAny<int>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(words);
+        _wordRepositoryMock.Setup(w => w.GetActiveByFirstLetterPagedAsync("ا", "ا", 1, 1, It.IsAny<CancellationToken>()))
+            .ReturnsAsync((words, 2, 2, 1));
         _publicIdEncoderMock.Setup(p => p.EncodeWordId(1)).Returns("1");
         _publicIdEncoderMock.Setup(p => p.EncodeWordId(2)).Returns("2");
 
@@ -300,13 +299,9 @@ public class WordServiceTests
     public async Task BrowseByLetterAsync_ShouldBoundPage_WhenPageExceedsTotal()
     {
         // arrange - two words and pageSize 1 -> totalPages = 2
-        var words = new List<Word>
-        {
-            new Word { Id = 1, Headword = "ا" },
-            new Word { Id = 2, Headword = "ب" }
-        };
-        _wordRepositoryMock.Setup(w => w.GetActiveByFirstLetterAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(words);
+        var words = new List<Word> { new Word { Id = 2, Headword = "ب" } }; // Page 2 item
+        _wordRepositoryMock.Setup(w => w.GetActiveByFirstLetterPagedAsync(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((words, 2, 2, 2));
         _publicIdEncoderMock.Setup(p => p.EncodeWordId(1)).Returns("1");
         _publicIdEncoderMock.Setup(p => p.EncodeWordId(2)).Returns("2");
 

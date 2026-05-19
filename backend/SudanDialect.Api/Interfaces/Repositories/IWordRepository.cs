@@ -7,10 +7,11 @@ public interface IWordRepository
 {
     Task<Word?> GetActiveByIdAsync(int id, CancellationToken cancellationToken = default);
 
-    Task<IReadOnlyList<Word>> GetActiveByFirstLetterAsync(
+    Task<(IReadOnlyList<Word> Items, int TotalCount, int TotalPages, int BoundedPage)> GetActiveByFirstLetterPagedAsync(
         string rawLetter,
         string normalizedLetter,
-        int take,
+        int page,
+        int pageSize,
         CancellationToken cancellationToken = default);
 
     Task<IReadOnlyList<WordSearchCandidateDto>> SearchActiveByNormalizedQueryAsync(
