@@ -300,39 +300,6 @@ public sealed class AdminWordRepository : IAdminWordRepository
         };
     }
 
-    public async Task<(IReadOnlyList<Word> Items, int TotalCount)> GetVisitsPagedAsync(
-        string sortBy,
-        bool sortDescending,
-        int page,
-        int pageSize,
-        CancellationToken cancellationToken = default)
-    {
-        var query = _dbContext.Words.AsNoTracking();
-
-        var totalCount = await query.CountAsync(cancellationToken);
-
-        var normalizedSortBy = sortBy.Trim().ToLowerInvariant();
-        var sortedQuery = (normalizedSortBy, sortDescending) switch
-        {
-            ("visitcount", true) => query.OrderByDescending(word => word.VisitCount),
-            ("visitcount", false) => query.OrderBy(word => word.VisitCount),
-            ("headword", true) => query.OrderByDescending(word => word.Headword),
-            ("headword", false) => query.OrderBy(word => word.Headword),
-            ("lastvisitedat", true) => query.OrderByDescending(word => word.LastVisitedAt),
-            ("lastvisitedat", false) => query.OrderBy(word => word.LastVisitedAt),
-            (_, true) => query.OrderByDescending(word => word.VisitCount),
-            (_, false) => query.OrderBy(word => word.VisitCount)
-        };
-
-        var skip = (page - 1) * pageSize;
-        var items = await sortedQuery
-            .Skip(skip)
-            .Take(pageSize)
-            .ToListAsync(cancellationToken);
-
-        return (items, totalCount);
-    }
-
     private static IQueryable<Word> ApplySorting(IQueryable<Word> query, string sortBy, bool sortDescending)
     {
         var normalizedSortBy = sortBy.Trim().ToLowerInvariant();

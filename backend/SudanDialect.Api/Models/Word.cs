@@ -12,8 +12,6 @@ public sealed class Word
     [JsonIgnore]
     public string NormalizedDefinition { get; set; } = string.Empty;
     public bool IsActive { get; set; } = true;
-    public int VisitCount { get; set; } = 0;
-    public DateTime? LastVisitedAt { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 }

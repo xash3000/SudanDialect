@@ -24,13 +24,6 @@ public sealed class WordRepository : IWordRepository
             .Where(word => word.IsActive && word.Id == id)
             .SingleOrDefaultAsync(cancellationToken);
 
-        if (word is not null)
-        {
-            word.VisitCount++;
-            word.LastVisitedAt = DateTime.UtcNow;
-            await _dbContext.SaveChangesAsync(cancellationToken);
-        }
-
         return word;
     }
 

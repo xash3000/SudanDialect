@@ -44,13 +44,6 @@ public sealed class AppDbContext : IdentityDbContext<IdentityUser>
             entity.Property(word => word.IsActive)
                 .HasDefaultValue(true);
 
-            entity.Property(word => word.VisitCount)
-                .HasDefaultValue(0)
-                .IsRequired();
-
-            entity.Property(word => word.LastVisitedAt)
-                .HasColumnType("timestamp with time zone");
-
             entity.Property(word => word.CreatedAt)
                 .HasColumnType("timestamp with time zone")
                 .IsRequired();
