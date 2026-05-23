@@ -2,132 +2,117 @@
   <h2 class="word-headword">{{ word.headword }}</h2>
   <p class="word-definition">
     @for (part of definitionParts; track $index) {
-      @if (part.kind === 'tag') {
-        <span
-          class="definition-tag"
-          [class.tag-primary]="part.colorClass === 'tag-primary'"
-          [class.tag-secondary]="part.colorClass === 'tag-secondary'"
-          [class.tag-tertiary]="part.colorClass === 'tag-tertiary'"
-          tabindex="0"
-          [attr.aria-label]="'اختصار ' + part.key + ': ' + part.tooltip"
-        >
-          {{ part.key }}
-          <span class="definition-tooltip" role="tooltip">{{ part.tooltip }}</span>
-        </span>
-      } @else {
-        <span>{{ part.value }}</span>
-      }
+    @if (part.kind === 'tag') {
+    <span class="definition-tag" [class.tag-primary]="part.colorClass === 'tag-primary'"
+      [class.tag-secondary]="part.colorClass === 'tag-secondary'"
+      [class.tag-tertiary]="part.colorClass === 'tag-tertiary'" tabindex="0"
+      [attr.aria-label]="'اختصار ' + part.key + ': ' + part.tooltip">
+      {{ part.key }}
+      <span class="definition-tooltip" role="tooltip">{{ part.tooltip }}</span>
+    </span>
+    } @else {
+    <span>{{ part.value }}</span>
+    }
     }
   </p>
 
   <div class="word-actions">
-    <button class="share-trigger" type="button" (click)="openSharePopup()" title="مشاركة">
-      <fa-icon [icon]="shareIcon" class="icon" aria-hidden="true" />
-      مشاركة
-    </button>
+    <span class="word-disclaimer">
+      تنبيه: نُقل محتوى هذا القاموس آلياً وقد يحتوي على أخطاء طفيفة. يُرجى الحذر والتأكد قبل استخدام الكلمات.
+    </span>
 
-    <button class="feedback-trigger" type="button" (click)="openFeedbackPopup()" title="ابلغ عن خطأ">
-      <fa-icon [icon]="reportIcon" class="icon" aria-hidden="true" />
-      ابلغ عن خطأ
-    </button>
+    <div class="action-buttons">
+      <button class="share-trigger" type="button" (click)="openSharePopup()" title="مشاركة">
+        <fa-icon [icon]="shareIcon" class="icon" aria-hidden="true" />
+        مشاركة
+      </button>
+
+      <button class="feedback-trigger" type="button" (click)="openFeedbackPopup()" title="ابلغ عن خطأ">
+        <fa-icon [icon]="reportIcon" class="icon" aria-hidden="true" />
+        ابلغ عن خطأ
+      </button>
+    </div>
   </div>
 
 </article>
 
 @if (isSharePopupOpen) {
-  <div class="share-popup-backdrop" (click)="closeSharePopup()">
-    <section
-      class="share-popup"
-      role="dialog"
-      aria-modal="true"
-      aria-label="مشاركة الكلمة"
-      (click)="$event.stopPropagation()"
-    >
-      <h3 class="share-title">مشاركة الكلمة</h3>
-      <p class="share-link" dir="ltr">{{ shareUrl }}</p>
+<div class="share-popup-backdrop" (click)="closeSharePopup()">
+  <section class="share-popup" role="dialog" aria-modal="true" aria-label="مشاركة الكلمة"
+    (click)="$event.stopPropagation()">
+    <h3 class="share-title">مشاركة الكلمة</h3>
+    <p class="share-link" dir="ltr">{{ shareUrl }}</p>
 
-      <div class="share-actions-grid">
-        <button class="share-action" type="button" (click)="copyShareLink()" title="نسخ الرابط">
-          <fa-icon [icon]="copyIcon" class="icon" aria-hidden="true" />
-          نسخ الرابط
-        </button>
-        <button class="share-action" type="button" (click)="shareOnFacebook()" title="شارك على فيسبوك">
-          <fa-icon [icon]="facebookIcon" class="icon" aria-hidden="true" />
-          فيسبوك
-        </button>
-        <button class="share-action" type="button" (click)="shareOnTwitter()" title="شارك على تويتر">
-          <fa-icon [icon]="xTwitterIcon" class="icon" aria-hidden="true" />
-          تويتر/X
-        </button>
-        <button class="share-action" type="button" (click)="shareOnWhatsapp()" title="شارك على واتساب">
-          <fa-icon [icon]="whatsappIcon" class="icon" aria-hidden="true" />
-          واتساب
-        </button>
-      </div>
+    <div class="share-actions-grid">
+      <button class="share-action" type="button" (click)="copyShareLink()" title="نسخ الرابط">
+        <fa-icon [icon]="copyIcon" class="icon" aria-hidden="true" />
+        نسخ الرابط
+      </button>
+      <button class="share-action" type="button" (click)="shareOnFacebook()" title="شارك على فيسبوك">
+        <fa-icon [icon]="facebookIcon" class="icon" aria-hidden="true" />
+        فيسبوك
+      </button>
+      <button class="share-action" type="button" (click)="shareOnTwitter()" title="شارك على تويتر">
+        <fa-icon [icon]="xTwitterIcon" class="icon" aria-hidden="true" />
+        تويتر/X
+      </button>
+      <button class="share-action" type="button" (click)="shareOnWhatsapp()" title="شارك على واتساب">
+        <fa-icon [icon]="whatsappIcon" class="icon" aria-hidden="true" />
+        واتساب
+      </button>
+    </div>
 
-      @if (copyFeedback()) {
-        <p class="share-feedback">{{ copyFeedback() }}</p>
-      }
+    @if (copyFeedback()) {
+    <p class="share-feedback">{{ copyFeedback() }}</p>
+    }
 
-      <button class="share-close" type="button" (click)="closeSharePopup()">إغلاق</button>
-    </section>
-  </div>
+    <button class="share-close" type="button" (click)="closeSharePopup()">إغلاق</button>
+  </section>
+</div>
 }
 
 @if (isFeedbackPopupOpen) {
-  <div class="feedback-popup-backdrop" (click)="closeFeedbackPopup()">
-    <section
-      class="feedback-popup"
-      role="dialog"
-      aria-modal="true"
-      aria-label="ابلغ عن خطأ"
-      (click)="$event.stopPropagation()"
-    >
-      <h3 class="feedback-title">ابلغ عن خطأ</h3>
+<div class="feedback-popup-backdrop" (click)="closeFeedbackPopup()">
+  <section class="feedback-popup" role="dialog" aria-modal="true" aria-label="ابلغ عن خطأ"
+    (click)="$event.stopPropagation()">
+    <h3 class="feedback-title">ابلغ عن خطأ</h3>
 
-      <div class="feedback-word-preview">
-        <p class="feedback-label">الكلمة</p>
-        <p class="feedback-value">{{ word.headword }}</p>
-      </div>
+    <div class="feedback-word-preview">
+      <p class="feedback-label">الكلمة</p>
+      <p class="feedback-value">{{ word.headword }}</p>
+    </div>
 
-      <div class="feedback-word-preview">
-        <p class="feedback-label">التعريف</p>
-        <p class="feedback-value">{{ word.definition }}</p>
-      </div>
+    <div class="feedback-word-preview">
+      <p class="feedback-label">التعريف</p>
+      <p class="feedback-value">{{ word.definition }}</p>
+    </div>
 
-      <label class="feedback-label" for="feedbackText">وصف المشكلة</label>
-      <textarea
-        id="feedbackText"
-        class="feedback-textarea"
-        [value]="feedbackText()"
-        (input)="onFeedbackInput($event)"
-        [disabled]="isSubmittingFeedback()"
-        rows="5"
-        maxlength="2000"
-        placeholder="اكتب الخطأ الذي لاحظته..."
-      ></textarea>
+    <label class="feedback-label" for="feedbackText">وصف المشكلة</label>
+    <textarea id="feedbackText" class="feedback-textarea" [value]="feedbackText()" (input)="onFeedbackInput($event)"
+      [disabled]="isSubmittingFeedback()" rows="5" maxlength="2000" placeholder="اكتب الخطأ الذي لاحظته..."></textarea>
 
-      <div class="feedback-captcha-wrap">
-        @if (!isTurnstileConfigured) {
-          <p class="feedback-captcha-missing">التحقق الأمني غير مفعّل حالياً.</p>
-        }
-        <div [id]="feedbackCaptchaContainerId"></div>
-      </div>
-
-      @if (feedbackError()) {
-        <p class="feedback-error" role="alert">{{ feedbackError() }}</p>
+    <div class="feedback-captcha-wrap">
+      @if (!isTurnstileConfigured) {
+      <p class="feedback-captcha-missing">التحقق الأمني غير مفعّل حالياً.</p>
       }
+      <div [id]="feedbackCaptchaContainerId"></div>
+    </div>
 
-      @if (feedbackSuccess()) {
-        <p class="feedback-success">{{ feedbackSuccess() }}</p>
-      }
+    @if (feedbackError()) {
+    <p class="feedback-error" role="alert">{{ feedbackError() }}</p>
+    }
 
-      <div class="feedback-actions">
-        <button class="feedback-submit" type="button" (click)="submitFeedback()" [disabled]="isSubmittingFeedback()">
-          {{ isSubmittingFeedback() ? 'جارٍ الإرسال...' : 'إرسال البلاغ' }}
-        </button>
-        <button class="feedback-close" type="button" (click)="closeFeedbackPopup()" [disabled]="isSubmittingFeedback()">إغلاق</button>
-      </div>
-    </section>
-  </div>
+    @if (feedbackSuccess()) {
+    <p class="feedback-success">{{ feedbackSuccess() }}</p>
+    }
+
+    <div class="feedback-actions">
+      <button class="feedback-submit" type="button" (click)="submitFeedback()" [disabled]="isSubmittingFeedback()">
+        {{ isSubmittingFeedback() ? 'جارٍ الإرسال...' : 'إرسال البلاغ' }}
+      </button>
+      <button class="feedback-close" type="button" (click)="closeFeedbackPopup()"
+        [disabled]="isSubmittingFeedback()">إغلاق</button>
+    </div>
+  </section>
+</div>
 }

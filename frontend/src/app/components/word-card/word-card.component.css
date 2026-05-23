@@ -25,9 +25,25 @@
 
 .word-actions {
   display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+  gap: 12px;
+  margin-top: 14px;
+}
+
+.word-disclaimer {
+  color: var(--color-text-main);
+  opacity: 0.75;
+  font-size: 0.75rem;
+  line-height: 1.4;
+  flex: 1 1 200px;
+}
+
+.action-buttons {
+  display: flex;
   justify-content: flex-end;
   gap: 8px;
-  margin-top: 14px;
 }
 
 .word-id-container {
