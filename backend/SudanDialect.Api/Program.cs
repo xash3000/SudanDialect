@@ -31,6 +31,7 @@ builder.Services.Configure<JwtOptions>(builder.Configuration.GetSection(JwtOptio
 builder.Services.Configure<AdminSeedOptions>(builder.Configuration.GetSection(AdminSeedOptions.SectionName));
 builder.Services.Configure<TurnstileOptions>(builder.Configuration.GetSection(TurnstileOptions.SectionName));
 builder.Services.Configure<PublicIdOptions>(builder.Configuration.GetSection(PublicIdOptions.SectionName));
+builder.Services.Configure<EmbeddingOptions>(builder.Configuration.GetSection(EmbeddingOptions.SectionName));
 
 var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
@@ -49,7 +50,8 @@ if (string.IsNullOrWhiteSpace(jwtOptions.SigningKey))
     throw new InvalidOperationException("JWT signing key is required. Set Jwt:SigningKey in appsettings or user-secrets.");
 }
 
-builder.Services.AddDbContext<AppDbContext>(options => options.UseNpgsql(connectionString));
+builder.Services.AddDbContext<AppDbContext>(options =>
+    options.UseNpgsql(connectionString, npgsqlOptions => npgsqlOptions.UseVector()));
 
 builder.Services
     .AddIdentityCore<IdentityUser>(options =>
@@ -143,6 +145,18 @@ builder.Services.AddRateLimiter(options =>
                 AutoReplenishment = true
             }));
 
+    options.AddPolicy(RateLimitPolicyNames.WordsSemanticSearchPerIp, httpContext =>
+        RateLimitPartition.GetFixedWindowLimiter(
+            partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
+            factory: _ => new FixedWindowRateLimiterOptions
+            {
+                PermitLimit = 60,
+                Window = TimeSpan.FromMinutes(3),
+                QueueLimit = 0,
+                QueueProcessingOrder = QueueProcessingOrder.OldestFirst,
+                AutoReplenishment = true
+            }));
+
     options.AddPolicy(RateLimitPolicyNames.WordsGetByIdPerIp, httpContext =>
         RateLimitPartition.GetFixedWindowLimiter(
             partitionKey: httpContext.Connection.RemoteIpAddress?.ToString() ?? "unknown",
@@ -156,6 +170,10 @@ builder.Services.AddRateLimiter(options =>
             }));
 });
 
+builder.Services.AddSingleton<TextEmbeddingService>();
+builder.Services.AddSingleton<ITextEmbeddingService>(sp => sp.GetRequiredService<TextEmbeddingService>());
+builder.Services.AddHostedService<EmbeddingWarmupService>();
+builder.Services.AddScoped<IEmbeddingBackfillService, EmbeddingBackfillService>();
 builder.Services.AddScoped<IWordRepository, WordRepository>();
 builder.Services.AddSingleton<IPublicIdEncoder, SqidsPublicIdEncoder>();
 builder.Services.AddScoped<IWordService, WordService>();
@@ -227,5 +245,13 @@ app.UseAuthorization();
 app.MapControllers();
 
 await DbSeeder.SeedAdminUsersAsync(app.Services);
+
+var embeddingOptions = app.Services.GetRequiredService<Microsoft.Extensions.Options.IOptions<EmbeddingOptions>>().Value;
+if (embeddingOptions.Enabled && embeddingOptions.AutoBackfillOnStartup)
+{
+    using var scope = app.Services.CreateScope();
+    var backfillService = scope.ServiceProvider.GetRequiredService<IEmbeddingBackfillService>();
+    await backfillService.BackfillMissingEmbeddingsAsync();
+}
 
 app.Run();

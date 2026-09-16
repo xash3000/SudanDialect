@@ -15,14 +15,18 @@ This dictionary is an ongoing effort, and we welcome contributions and correctio
   - **Text Normalization**: Automatic handling of arabic letters variants (أ، إ، آ), (ى، ئ), (ة, ه).
   - **Diacritics & Tashkeel Removal**: Seamlessly searches through text regardless of Tashkeel or other character extensions.
   - **Similarity Matching**: Powered by PostgreSQL trigram similarity to handle common spelling variations and typos.
+- **Semantic Search**: Finds words by meaning rather than exact spelling, allowing natural language queries to discover related words and concepts. Powered by PostgreSQL Pgvector extension.
 - **Alphabetical Browsing**: An interactive index allowing users to explore the dictionary letter by letter.
 
 ## Tech Stack
 
-- Backend: C# (.NET 10), ASP.NET, Entity Framework Core, PostgreSQL
+- Backend: C# (.NET 10), ASP.NET, Entity Framework Core, PostgreSQL with pgvector
 - Frontend: Angular 21
+- Semantic Search: silma-ai/silma-embedding-matryoshka-v0.1 embeddings model
 
 ## Run Locally
+
+Prerequisites: .NET 10 SDK, Node 20+, Docker Engine, Python 3.10+ (only for exporting the embedding model).
 
 Frontend and backend are separate.
 
@@ -41,9 +45,9 @@ npm install
 ng serve
 ```
 
-4. Open `http://localhost:4200`.
+4. Open `http://localhost:4200`..
 
-### Backend 
+### Backend
 
 1. Create a `.env` file in `backend/` with these variables:
 
@@ -59,20 +63,46 @@ ADMIN_PASS_1=replace-with-strong-password
 FRONTEND_URL=http://localhost:4200
 ```
 
-2. Build the API docker image:
+2. Set up the embedding model (required for semantic search):
+
+```bash
+cd backend/SudanDialect.Api/onnx_models
+pip install "optimum[onnxruntime]" transformers
+python export.py
+# Copy the exported files from onnx-model-output/ into the root folder:
+# silma-embedding-matryoshka-v0.1.onnx, vocab.txt, tokenizer.json
+```
+
+3. Build the API docker image:
 
 ```bash
 cd backend
 docker build -f SudanDialect.Api/Dockerfile -t ghcr.io/xash3000/sudandialect:latest .
 ```
 
-3. Start backend services with Docker Compose:
+4. Start backend services with Docker Compose (DB image is `pgvector/pgvector:pg18`):
 
 ```bash
 docker compose up -d
 ```
 
-4. The API will be available at `http://localhost:5038`.
+5. Copy the model files into the API container volume and restart the API (run from repo root):
+
+```bash
+docker cp backend/SudanDialect.Api/onnx_models/silma-embedding-matryoshka-v0.1.onnx sudan_dialect_api:/app/onnx_models/
+docker cp backend/SudanDialect.Api/onnx_models/vocab.txt sudan_dialect_api:/app/onnx_models/
+docker cp backend/SudanDialect.Api/onnx_models/tokenizer.json sudan_dialect_api:/app/onnx_models/
+docker restart sudan_dialect_api
+```
+
+6. Apply database migrations (includes the `vector(768)` column and HNSW index):
+
+```bash
+cd backend/SudanDialect.Api
+dotnet ef database update
+```
+
+7. The API will be available at `http://localhost:5038`. Semantic search endpoint: `GET /api/words/semantic-search?query=...`. Embeddings are backfilled automatically on startup (`Embedding:AutoBackfillOnStartup`); set `Embedding__Enabled=false` to run keyword-only.
 
 ### Stop Services
 
