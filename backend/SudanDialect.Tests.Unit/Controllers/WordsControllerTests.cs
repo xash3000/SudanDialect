@@ -107,17 +107,38 @@ public class WordsControllerTests
     }
 
     [Fact]
-    public async Task Search_ShouldThrowArgumentException_WhenQueryTooLong()
+    public async Task Search_ShouldReturnBadRequest_WhenQueryTooLong()
     {
         // arrange
         var query = new string('a', 300);
-        _wordServiceMock
-            .Setup(ws => ws.SearchAsync(query, It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new ArgumentException("Too long"));
 
-        // act & assert
-        await Assert.ThrowsAsync<ArgumentException>(() =>
-            _sut.Search(query, TestContext.Current.CancellationToken));
+        // act
+        var actionResult = await _sut.Search(query, TestContext.Current.CancellationToken);
+
+        // assert
+        actionResult.Result.Should().NotBeNull();
+        actionResult.Result.Should().BeOfType<BadRequestObjectResult>();
+        _wordServiceMock.Verify(
+            ws => ws.SearchAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [Fact]
+    public async Task SemanticSearch_ShouldReturnBadRequest_WhenQueryTooLong()
+    {
+        // arrange
+        var query = new string('a', 300);
+
+        // act
+        var actionResult = await _sut.SemanticSearch(query, TestContext.Current.CancellationToken);
+
+        // assert
+        actionResult.Result.Should().NotBeNull();
+        var badRequestResult = actionResult.Result.Should().BeOfType<BadRequestObjectResult>().Subject;
+        badRequestResult.Value.Should().BeOfType<ProblemDetails>();
+        _wordServiceMock.Verify(
+            ws => ws.SemanticSearchAsync(It.IsAny<string>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [Fact]

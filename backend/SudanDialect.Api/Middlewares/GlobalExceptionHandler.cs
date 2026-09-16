@@ -17,7 +17,14 @@ public sealed class GlobalExceptionHandler : IExceptionHandler
         Exception exception,
         CancellationToken cancellationToken)
     {
-        _logger.LogError(exception, "Unhandled exception occurred: {Message}", exception.Message);
+        if (exception is ArgumentOutOfRangeException || exception is ArgumentException)
+        {
+            _logger.LogWarning(exception, "Bad request: {Message}", exception.Message);
+        }
+        else
+        {
+            _logger.LogError(exception, "Unhandled exception occurred: {Message}", exception.Message);
+        }
 
         var problemDetails = new ProblemDetails
         {

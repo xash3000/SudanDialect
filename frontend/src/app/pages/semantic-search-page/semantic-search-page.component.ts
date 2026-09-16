@@ -1,4 +1,5 @@
 import { DOCUMENT } from '@angular/common';
+import { HttpErrorResponse } from '@angular/common/http';
 import { Component, NgZone, OnDestroy, computed, inject, signal } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
 import { Subject, of } from 'rxjs';
@@ -37,7 +38,13 @@ export class SemanticSearchPageComponent implements OnDestroy {
   protected readonly results = signal<WordSearchResult[]>([]);
   protected readonly isLoading = signal(false);
   protected readonly hasRequestError = signal(false);
+  protected readonly searchError = signal('');
   protected readonly hasSearched = signal(false);
+  protected readonly maxQueryLength = 200;
+  protected readonly tooLongQueryMessage =
+    'نص البحث طويل جداً. الحد الأقصى المسموح به هو 200 حرف. يرجى تقصير النص والمحاولة مرة أخرى.';
+  protected readonly genericSearchErrorMessage =
+    'تعذر الاتصال بخدمة البحث الذكي. يُرجى المحاولة مرة أخرى.';
 
   protected readonly isSuggestionFormOpen = signal(false);
   protected readonly suggestionHeadword = signal('');
@@ -89,19 +96,31 @@ export class SemanticSearchPageComponent implements OnDestroy {
       this.results.set([]);
       this.isLoading.set(false);
       this.hasRequestError.set(false);
+      this.searchError.set('');
       this.hasSearched.set(false);
+      return;
+    }
+
+    if (query.length > this.maxQueryLength) {
+      this.results.set([]);
+      this.isLoading.set(false);
+      this.hasRequestError.set(true);
+      this.searchError.set(this.tooLongQueryMessage);
+      this.hasSearched.set(true);
       return;
     }
 
     this.isLoading.set(true);
     this.hasRequestError.set(false);
+    this.searchError.set('');
     this.hasSearched.set(true);
 
     this.wordSearchService
       .semanticSearch(query)
       .pipe(
-        catchError(() => {
+        catchError((error: unknown) => {
           this.hasRequestError.set(true);
+          this.searchError.set(this.extractSearchErrorMessage(error));
           return of([]);
         }),
         takeUntil(this.destroy$)
@@ -112,11 +131,28 @@ export class SemanticSearchPageComponent implements OnDestroy {
       });
   }
 
+  private extractSearchErrorMessage(error: unknown): string {
+    if (error instanceof HttpErrorResponse) {
+      const backendMessage =
+        (typeof error.error?.error === 'string' && error.error.error.trim()) ||
+        (typeof error.error?.detail === 'string' && error.error.detail.trim()) ||
+        '';
+      if (backendMessage) {
+        return backendMessage;
+      }
+      if (error.status === 400) {
+        return this.tooLongQueryMessage;
+      }
+    }
+    return this.genericSearchErrorMessage;
+  }
+
   protected clearSearch(): void {
     this.searchQuery.set('');
     this.results.set([]);
     this.hasSearched.set(false);
     this.hasRequestError.set(false);
+    this.searchError.set('');
   }
 
   protected openSuggestionForm(event?: Event): void {

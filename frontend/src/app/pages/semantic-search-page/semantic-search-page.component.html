@@ -51,7 +51,7 @@
     @if (hasRequestError() && !isLoading()) {
     <div class="state-card error-card" role="alert">
       <p class="state-title">حدث خطأ أثناء البحث</p>
-      <p class="state-desc">تعذر الاتصال بخدمة البحث الذكي. يُرجى المحاولة مرة أخرى.</p>
+      <p class="state-desc">{{ searchError() || 'تعذر الاتصال بخدمة البحث الذكي. يُرجى المحاولة مرة أخرى.' }}</p>
       <button type="button" class="retry-btn" (click)="executeSearch()">إعادة المحاولة</button>
     </div>
     }
