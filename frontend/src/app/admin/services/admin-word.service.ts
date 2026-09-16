@@ -12,7 +12,9 @@ import {
   AdminUpdateWordRequest,
   AdminWord,
   AdminWordTablePage,
-  AdminWordTableQuery
+  AdminWordTableQuery,
+  EmbeddingBackfillResult,
+  EmbeddingBackfillStatus
 } from '../models/admin-word.model';
 
 @Injectable({ providedIn: 'root' })
@@ -22,6 +24,18 @@ export class AdminWordService {
 
   getMetrics(): Observable<AdminDashboardMetrics> {
     return this.http.get<AdminDashboardMetrics>(`${this.adminApiBaseUrl}/metrics`);
+  }
+
+  getEmbeddingStatus(): Observable<EmbeddingBackfillStatus> {
+    return this.http.get<EmbeddingBackfillStatus>(`${this.adminApiBaseUrl}/embedding-status`);
+  }
+
+  backfillEmbeddings(batchSize: number = 50, forceAll: boolean = false): Observable<EmbeddingBackfillResult> {
+    let params = new HttpParams()
+      .set('batchSize', batchSize)
+      .set('forceAll', forceAll);
+
+    return this.http.post<EmbeddingBackfillResult>(`${this.adminApiBaseUrl}/backfill-embeddings`, null, { params });
   }
 
   getWords(query: AdminWordTableQuery): Observable<AdminWordTablePage> {

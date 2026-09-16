@@ -29,7 +29,7 @@
 
 .metric-grid {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
     gap: 12px;
 }
 
@@ -62,6 +62,29 @@
 
 .metric-card.inactive {
     border-color: rgba(164, 59, 48, 0.32);
+}
+
+.metric-card.embedding {
+    border-color: rgba(79, 70, 229, 0.3);
+}
+
+.metric-card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.manage-link {
+    font-size: 0.85rem;
+    color: #1b4d7e;
+    text-decoration: underline;
+}
+
+.metric-subtitle {
+    margin-top: 6px;
+    display: block;
+    color: #5d6f7d;
+    font-size: 0.85rem;
 }
 
 .state-message {

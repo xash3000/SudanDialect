@@ -137,6 +137,7 @@ public sealed class AdminWordRepository : IAdminWordRepository
         string adminUserId,
         string? clientIp,
         string? userAgent,
+        Pgvector.Vector? embedding = null,
         CancellationToken cancellationToken = default)
     {
         var word = await _dbContext.Words.SingleOrDefaultAsync(item => item.Id == id, cancellationToken);
@@ -156,6 +157,10 @@ public sealed class AdminWordRepository : IAdminWordRepository
         word.Definition = definition;
         word.NormalizedDefinition = normalizedDefinition;
         word.IsActive = isActive;
+        if (embedding != null)
+        {
+            word.Embedding = embedding;
+        }
 
         _dbContext.Audits.Add(CreateAuditEntry(
             word,

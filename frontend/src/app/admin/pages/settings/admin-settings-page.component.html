@@ -14,6 +14,132 @@
   </div>
 
   @if (isAdmin()) {
+    <div class="setting-card embeddings-card">
+      <div class="card-header-row">
+        <div>
+          <h3>تضمينات الكلمات والبحث الذكي</h3>
+          <p class="helper-text">إدارة وتوليد المتجهات الدلالية للكلمات لدعم محرك البحث الذكي.</p>
+        </div>
+        <button
+          type="button"
+          class="secondary-button"
+          (click)="loadEmbeddingStatus()"
+          [disabled]="isLoadingEmbeddingStatus() || isBackfilling()"
+        >
+          {{ isLoadingEmbeddingStatus() ? 'جاري التحديث...' : 'تحديث الحالة' }}
+        </button>
+      </div>
+
+      @if (isLoadingEmbeddingStatus() && !embeddingStatus()) {
+        <p class="helper-text">جاري تحميل بيانات التضمينات...</p>
+      } @else if (embeddingStatusError()) {
+        <p class="error-message" role="alert">{{ embeddingStatusError() }}</p>
+      } @else if (embeddingStatus(); as status) {
+        <div class="embedding-stats-grid">
+          <div class="stat-item">
+            <span class="stat-label">حالة النموذج</span>
+            <span class="stat-badge" [class.badge-active]="status.isEmbeddingServiceAvailable" [class.badge-inactive]="!status.isEmbeddingServiceAvailable">
+              {{ status.isEmbeddingServiceAvailable ? 'نشط ومتوفر' : 'غير متوفر / معطل' }}
+            </span>
+          </div>
+
+          <div class="stat-item">
+            <span class="stat-label">أبعاد المتجه</span>
+            <span class="stat-value font-mono">{{ status.dimensions }}</span>
+          </div>
+
+          <div class="stat-item">
+            <span class="stat-label">إجمالي الكلمات</span>
+            <span class="stat-value">{{ status.totalWords }}</span>
+          </div>
+
+          <div class="stat-item">
+            <span class="stat-label">كلمات ذات تضمين</span>
+            <span class="stat-value success-text">{{ status.wordsWithEmbeddings }}</span>
+          </div>
+
+          <div class="stat-item">
+            <span class="stat-label">كلمات بدون تضمين</span>
+            <span class="stat-value" [class.warning-text]="status.wordsWithoutEmbeddings > 0">{{ status.wordsWithoutEmbeddings }}</span>
+          </div>
+        </div>
+
+        <div class="progress-container">
+          <div class="progress-header">
+            <span>نسبة التغطية: {{ embeddingProgressPercentage() }}%</span>
+            <span>{{ status.wordsWithEmbeddings }} / {{ status.totalWords }}</span>
+          </div>
+          <div class="progress-bar-track">
+            <div class="progress-bar-fill" [style.width.%]="embeddingProgressPercentage()"></div>
+          </div>
+        </div>
+
+        <div class="backfill-controls">
+          <h4>بدء المعالجة وتوليد التضمينات (Backfill)</h4>
+
+          <div class="controls-row">
+            <div class="control-group">
+              <label for="batch-size-input">حجم الدفعة (Batch Size):</label>
+              <input
+                id="batch-size-input"
+                type="number"
+                min="10"
+                max="500"
+                step="10"
+                [value]="backfillBatchSize()"
+                (input)="updateBatchSize($any($event.target).value)"
+                [disabled]="isBackfilling()"
+              />
+            </div>
+
+            <div class="control-group-checkbox">
+              <label>
+                <input
+                  type="checkbox"
+                  [checked]="backfillForceAll()"
+                  (change)="toggleForceAll($event)"
+                  [disabled]="isBackfilling()"
+                />
+                إعادة إنشاء التضمينات لجميع الكلمات (Force re-embed all)
+              </label>
+            </div>
+          </div>
+
+          <div class="action-row">
+            <button
+              type="button"
+              class="primary-btn"
+              (click)="triggerBackfill()"
+              [disabled]="isBackfilling() || !status.isEmbeddingServiceAvailable || (!backfillForceAll() && status.wordsWithoutEmbeddings === 0)"
+            >
+              @if (isBackfilling()) {
+                جاري المعالجة وتوليد التضمينات...
+              } @else if (backfillForceAll()) {
+                إعادة توليد تضمينات لجميع الكلمات
+              } @else if (status.wordsWithoutEmbeddings > 0) {
+                توليد التضمينات الناقصة ({{ status.wordsWithoutEmbeddings }})
+              } @else {
+                جميع الكلمات مدمجة بالفعل
+              }
+            </button>
+          </div>
+
+          @if (backfillError()) {
+            <p class="error-message" role="alert">{{ backfillError() }}</p>
+          }
+
+          @if (backfillResult(); as result) {
+            <div class="result-banner">
+              <p>
+                <strong>اكتملت العملية:</strong> تمت معالجة <strong>{{ result.backfilledCount }}</strong> كلمة بنجاح.
+                المتبقي بدون تضمين: <strong>{{ result.remainingMissing }}</strong> من إجمالي <strong>{{ result.totalWords }}</strong>.
+              </p>
+            </div>
+          }
+        </div>
+      }
+    </div>
+
     <div class="setting-card users-card">
       <h3>إدارة المستخدمين</h3>
       <p class="helper-text">يمكنك إنشاء مستخدم جديد (دور moderator افتراضياً)، وتحديث اسم المستخدم/كلمة المرور، أو حذف المستخدم.</p>

@@ -46,3 +46,18 @@ export interface AdminUpdateWordRequest {
   definition: string;
   isActive: boolean;
 }
+
+export interface EmbeddingBackfillStatus {
+  isEmbeddingServiceAvailable: boolean;
+  dimensions: number;
+  totalWords: number;
+  wordsWithEmbeddings: number;
+  wordsWithoutEmbeddings: number;
+}
+
+export interface EmbeddingBackfillResult {
+  backfilledCount: number;
+  remainingMissing: number;
+  totalWords: number;
+  wordsWithEmbeddings: number;
+}
