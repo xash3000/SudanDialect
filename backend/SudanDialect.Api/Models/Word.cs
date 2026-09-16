@@ -12,6 +12,8 @@ public sealed class Word
     [JsonIgnore]
     public string NormalizedDefinition { get; set; } = string.Empty;
     public bool IsActive { get; set; } = true;
+    [JsonIgnore]
+    public Pgvector.Vector? Embedding { get; set; }
     public DateTime CreatedAt { get; set; }
     public DateTime UpdatedAt { get; set; }
 }

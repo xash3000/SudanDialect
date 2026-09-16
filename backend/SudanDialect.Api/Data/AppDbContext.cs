@@ -22,6 +22,7 @@ public sealed class AppDbContext : IdentityDbContext<IdentityUser>
         base.OnModelCreating(modelBuilder);
 
         modelBuilder.HasPostgresExtension("pg_trgm");
+        modelBuilder.HasPostgresExtension("vector");
 
         modelBuilder.Entity<Word>(entity =>
         {
@@ -43,6 +44,13 @@ public sealed class AppDbContext : IdentityDbContext<IdentityUser>
 
             entity.Property(word => word.IsActive)
                 .HasDefaultValue(true);
+
+            entity.Property(word => word.Embedding)
+                .HasColumnType("vector(768)");
+
+            entity.HasIndex(word => word.Embedding)
+                .HasMethod("hnsw")
+                .HasOperators("vector_cosine_ops");
 
             entity.Property(word => word.CreatedAt)
                 .HasColumnType("timestamp with time zone")
