@@ -1,0 +1,177 @@
+<main class="semantic-search-page" dir="rtl">
+  <section class="semantic-container">
+    <header class="header-section">
+      <h1 class="title">البحث الذكي</h1>
+      <p class="subtitle">
+        ابحث عن الكلمات بوصف معناها أو سياق استخدامها، حتى لو لم تكن متأكداً من لفظ الكلمة بالضبط.
+      </p>
+    </header>
+
+    <!-- Search Input Area -->
+    <div class="search-box-wrap">
+      <div class="search-input-container">
+        <span class="search-leading-icon" aria-hidden="true">
+          <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="2">
+            <circle cx="11" cy="11" r="8"></circle>
+            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+          </svg>
+        </span>
+
+        <input class="semantic-input" type="text" [value]="searchQuery()" (input)="onSearchInput($event)"
+          (keydown.enter)="executeSearch()" placeholder="اكتب وصفاً أو معنى الكلمة..." aria-label="حقل البحث الذكي"
+          autocomplete="off" />
+
+        @if (searchQuery()) {
+        <button type="button" class="clear-btn" (click)="clearSearch()" aria-label="مسح النص" title="مسح">
+          ✕
+        </button>
+        }
+
+        <button type="button" class="search-btn" (click)="executeSearch()"
+          [disabled]="isLoading() || !searchQuery().trim()" aria-label="بحث">
+          @if (isLoading()) {
+          <span class="spinner" aria-hidden="true"></span>
+          <span>جارٍ البحث...</span>
+          } @else {
+          <span>ابحث</span>
+          }
+        </button>
+      </div>
+    </div>
+
+    <!-- Loading State -->
+    @if (isLoading()) {
+    <div class="loading-state" role="status">
+      <div class="pulse-loader"></div>
+      <p>جارٍ تحليل المعنى والبحث في تضمينات الكلمات السودانية...</p>
+    </div>
+    }
+
+    <!-- Error State -->
+    @if (hasRequestError() && !isLoading()) {
+    <div class="state-card error-card" role="alert">
+      <p class="state-title">حدث خطأ أثناء البحث</p>
+      <p class="state-desc">تعذر الاتصال بخدمة البحث الذكي. يُرجى المحاولة مرة أخرى.</p>
+      <button type="button" class="retry-btn" (click)="executeSearch()">إعادة المحاولة</button>
+    </div>
+    }
+
+    <!-- Initial Welcome State (Before any search) -->
+    @if (!hasSearched() && !isLoading() && !searchQuery()) {
+    <div class="welcome-guide">
+      <h2 class="guide-title">كيف يعمل البحث الذكي؟</h2>
+      <div class="guide-cards">
+        <div class="guide-card">
+          <h3>ابحث بالمعنى وليس اللفظ</h3>
+          <p>لا تحتاج لمعرفة الكلمة بالضبط، فقط صف الشعور، الموقف، أو الشيء الذي تبحث عنه.</p>
+        </div>
+        <div class="guide-card">
+          <h3>مقارنة المعاني</h3>
+          <p>يحوّل البحث وصفك إلى تمثيل رقمي للمعنى، ثم يقارنه بالتمثيلات المحفوظة لكلمات القاموس ويعرض الأقرب إليه.</p>
+        </div>
+        <div class="guide-card">
+          <h3>ترتيب حسب المعنى</h3>
+          <p>تُرتّب النتائج حسب التقارب في المعنى مع بحثك.</p>
+        </div>
+      </div>
+    </div>
+    }
+
+    <!-- No Results State -->
+    @if (shouldShowNoResults()) {
+    <div class="state-card empty-card" role="status">
+      <h3 class="state-title">لم نجد نتائج متطابقة لهذا الوصف</h3>
+      <p class="state-desc">
+        جرّب صياغة المعنى بكلمات أخرى أو وصف الموقف بطريقة مختلفة.
+      </p>
+      <p class="suggestion-prompt">
+        هل تعرف الكلمة ومعناها؟
+        <a href="" (click)="openSuggestionForm($event)">اقترح إضافتها للقاموس</a>
+      </p>
+    </div>
+    }
+
+    <!-- Search Results List -->
+    @if (!isLoading() && results().length > 0) {
+    <section class="results-container" aria-label="نتائج البحث الذكي">
+      <div class="results-header">
+        <div class="results-header-info">
+          <h2 class="results-title">
+            أقرب الكلمات للمعنى:
+            <span class="results-query">"{{ searchQuery() }}"</span>
+          </h2>
+          <span class="results-count">({{ results().length }} نتيجة)</span>
+        </div>
+      </div>
+
+      <div class="results-list" role="list">
+        @for (result of results(); track result.id) {
+        <app-word-card [word]="result" [showSimilarity]="false" />
+        }
+      </div>
+
+      <div class="bottom-hint">
+        <p>
+          لم تجد الكلمة التي تبحث عنها بالضبط؟
+          <a href="" (click)="openSuggestionForm($event)">اقترح كلمة جديدة</a>
+        </p>
+      </div>
+    </section>
+    }
+  </section>
+</main>
+
+<!-- Suggestion Popup Modal -->
+@if (isSuggestionFormOpen()) {
+<div class="suggestion-popup-backdrop" (click)="closeSuggestionForm()">
+  <section class="suggestion-popup" role="dialog" aria-modal="true" aria-label="اقتراح كلمة" dir="rtl"
+    (click)="$event.stopPropagation()">
+    <h3 class="suggestion-title">اقترح كلمة</h3>
+
+    <label class="suggestion-label" for="semanticSuggestionHeadword">الكلمة</label>
+    <input id="semanticSuggestionHeadword" class="suggestion-input" type="text" [value]="suggestionHeadword()"
+      (input)="onSuggestionHeadwordInput($event)" [disabled]="isSubmittingSuggestion()" maxlength="200"
+      placeholder="مثال: كباية" />
+
+    <label class="suggestion-label" for="semanticSuggestionDefinition">التعريف</label>
+    <textarea id="semanticSuggestionDefinition" class="suggestion-textarea" [value]="suggestionDefinition()"
+      (input)="onSuggestionDefinitionInput($event)" [disabled]="isSubmittingSuggestion()" rows="5" maxlength="4000"
+      placeholder="اكتب شرح الكلمة أو طريقة استخدامها..."></textarea>
+
+    <label class="suggestion-label" for="semanticSuggestionEmail">البريد الإلكتروني (اختياري)</label>
+    <input id="semanticSuggestionEmail" class="suggestion-input" type="email" [value]="suggestionEmail()"
+      (input)="onSuggestionEmailInput($event)" [disabled]="isSubmittingSuggestion()" maxlength="320"
+      placeholder="name@example.com" dir="ltr" />
+
+    <p class="suggestion-privacy-note">
+      لن يتم نشر البريد الإلكتروني بشكل عام، وسيُستخدم فقط إذا احتجنا للتواصل معك.
+    </p>
+
+    <div class="suggestion-captcha-wrap">
+      @if (!isTurnstileConfigured) {
+      <p class="suggestion-captcha-missing">التحقق الأمني غير مفعّل حالياً.</p>
+      }
+      <div [id]="suggestionCaptchaContainerId"></div>
+    </div>
+
+    @if (suggestionError()) {
+    <p class="suggestion-error" role="alert">{{ suggestionError() }}</p>
+    }
+
+    @if (suggestionSuccess()) {
+    <p class="suggestion-success">{{ suggestionSuccess() }}</p>
+    }
+
+    <div class="suggestion-actions">
+      <button type="button" class="suggestion-submit" (click)="submitSuggestion()"
+        [disabled]="isSubmittingSuggestion()">
+        {{ isSubmittingSuggestion() ? 'جارٍ الإرسال...' : 'إرسال الاقتراح' }}
+      </button>
+      <button type="button" class="suggestion-close" (click)="closeSuggestionForm()"
+        [disabled]="isSubmittingSuggestion()">
+        إغلاق
+      </button>
+    </div>
+  </section>
+</div>
+}

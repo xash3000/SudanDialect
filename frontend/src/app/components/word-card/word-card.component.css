@@ -7,12 +7,49 @@
   box-shadow: 0 4px 14px rgba(58, 49, 46, 0.09);
 }
 
+.word-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 12px;
+  flex-wrap: wrap;
+}
+
 .word-headword {
-  margin: 0 0 12px;
+  margin: 0;
   color: var(--color-primary);
   font-size: 2rem;
   font-weight: 700;
   line-height: 1.2;
+}
+
+.similarity-badge {
+  font-size: 0.82rem;
+  font-weight: 700;
+  padding: 0.25rem 0.65rem;
+  border-radius: 999px;
+  white-space: nowrap;
+  display: inline-flex;
+  align-items: center;
+}
+
+.relevance-high {
+  background: #e8f5e9;
+  color: #2e7d32;
+  border: 1px solid #c8e6c9;
+}
+
+.relevance-medium {
+  background: #fff8e1;
+  color: #f57f17;
+  border: 1px solid #ffecb3;
+}
+
+.relevance-low {
+  background: #f5f5f5;
+  color: #757575;
+  border: 1px solid #e0e0e0;
 }
 
 .word-definition {

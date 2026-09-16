@@ -21,6 +21,10 @@
     />
 
 
+    <p class="quick-links">
+      <span>لم تجد الكلمة التي تبحث عنها؟ <a href="" (click)="openSuggestionForm($event)">اقترح كلمة</a> أو <a routerLink="/semantic-search">جرّب البحث الذكي</a></span>
+    </p>
+
     @if (selectedWord(); as word) {
       <app-word-card [word]="word" class="word-card"/>
     }
@@ -28,10 +32,6 @@
     @if (hasWordLoadError()) {
       <p class="word-load-error" role="alert">تعذر تحميل الكلمة المطلوبة من الرابط.</p>
     }
-    <p class="suggestion-hint">
-      لم تجد الكلمة التي تبحث عنها؟
-      <a href="" (click)="openSuggestionForm($event)">اقترح كلمة</a>
-    </p>
 
     @if (isSuggestionFormOpen()) {
       <div class="suggestion-popup-backdrop" (click)="closeSuggestionForm()">

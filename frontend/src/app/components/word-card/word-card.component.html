@@ -1,5 +1,18 @@
 <article class="word-card">
-  <h2 class="word-headword">{{ word.headword }}</h2>
+  <div class="word-header">
+    <h2 class="word-headword">{{ word.headword }}</h2>
+    @if (showSimilarity && similarityPercentage !== null) {
+      <span
+        class="similarity-badge"
+        [class.relevance-high]="relevanceClass === 'relevance-high'"
+        [class.relevance-medium]="relevanceClass === 'relevance-medium'"
+        [class.relevance-low]="relevanceClass === 'relevance-low'"
+        [title]="'درجة التطابق الدلالي: ' + similarityPercentage + '%'"
+      >
+        {{ similarityPercentage }}% تطابق
+      </span>
+    }
+  </div>
   <p class="word-definition">
     @for (part of definitionParts; track $index) {
     @if (part.kind === 'tag') {

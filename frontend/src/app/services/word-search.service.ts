@@ -27,6 +27,18 @@ export class WordSearchService {
       .pipe(map((results) => this.sortBySimilarity(results)));
   }
 
+  semanticSearch(query: string): Observable<WordSearchResult[]> {
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) {
+      return of([]);
+    }
+
+    const params = new HttpParams().set('query', trimmedQuery);
+    return this.http
+      .get<WordSearchResult[]>(`${environment.apiBaseUrl}/api/words/semantic-search`, { params })
+      .pipe(map((results) => this.sortBySimilarity(results)));
+  }
+
   browseByLetter(letter: string, page: number, pageSize: number): Observable<WordBrowsePage> {
     const trimmedLetter = letter.trim();
     if (!trimmedLetter) {

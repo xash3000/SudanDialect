@@ -1,6 +1,6 @@
 import { DOCUMENT } from '@angular/common';
 import { Component, NgZone, OnDestroy, computed, inject, signal } from '@angular/core';
-import { ActivatedRoute, Router } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { Subject, of } from 'rxjs';
 import { catchError, debounceTime, distinctUntilChanged, switchMap, takeUntil, tap } from 'rxjs/operators';
 import { environment } from '../../../environments/environment';
@@ -24,7 +24,7 @@ declare global {
 
 @Component({
   selector: 'app-home-page',
-  imports: [SearchBarComponent, WordCardComponent],
+  imports: [RouterLink, SearchBarComponent, WordCardComponent],
   templateUrl: './home-page.component.html',
   styleUrl: './home-page.component.css'
 })
