@@ -80,7 +80,7 @@ cd backend
 docker build -f SudanDialect.Api/Dockerfile -t ghcr.io/xash3000/sudandialect:latest .
 ```
 
-4. Start backend services with Docker Compose (DB image is `pgvector/pgvector:pg18`):
+4. Start backend services with Docker Compose (DB image is `pgvector/pgvector:pg16`):
 
 ```bash
 docker compose up -d
