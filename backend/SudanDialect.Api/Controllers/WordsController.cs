@@ -47,6 +47,18 @@ public sealed class WordsController : ControllerBase
         return Ok(results);
     }
 
+    [HttpGet("semantic-search")]
+    [EnableRateLimiting(RateLimitPolicyNames.WordsSemanticSearchPerIp)]
+    [ProducesResponseType(typeof(IReadOnlyList<WordSearchResultDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<IReadOnlyList<WordSearchResultDto>>> SemanticSearch(
+        [FromQuery] string? query,
+        CancellationToken cancellationToken)
+    {
+        var results = await _wordService.SemanticSearchAsync(query, cancellationToken);
+        return Ok(results);
+    }
+
     [HttpGet("browse")]
     [EnableRateLimiting(RateLimitPolicyNames.WordsBrowsePerIp)]
     [ProducesResponseType(typeof(WordBrowsePageDto), StatusCodes.Status200OK)]

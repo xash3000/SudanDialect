@@ -25,15 +25,18 @@ public sealed class WordService : IWordService
     private readonly IWordRepository _wordRepository;
     private readonly IPublicIdEncoder _publicIdEncoder;
     private readonly ITurnstileVerificationService _turnstileVerificationService;
+    private readonly ITextEmbeddingService? _textEmbeddingService;
 
     public WordService(
         IWordRepository wordRepository,
         IPublicIdEncoder publicIdEncoder,
-        ITurnstileVerificationService turnstileVerificationService)
+        ITurnstileVerificationService turnstileVerificationService,
+        ITextEmbeddingService? textEmbeddingService = null)
     {
         _wordRepository = wordRepository;
         _publicIdEncoder = publicIdEncoder;
         _turnstileVerificationService = turnstileVerificationService;
+        _textEmbeddingService = textEmbeddingService;
     }
 
     public async Task<WordDetailsDto?> GetByPublicIdAsync(string publicId, CancellationToken cancellationToken = default)
@@ -83,6 +86,53 @@ public sealed class WordService : IWordService
             {
                 Id = _publicIdEncoder.EncodeWordId(result.Id),
                 Headword = result.Headword,
+                Definition = result.Definition,
+                SimilarityScore = result.SimilarityScore
+            })
+            .ToList();
+    }
+
+    public async Task<IReadOnlyList<WordSearchResultDto>> SemanticSearchAsync(string? rawQuery, CancellationToken cancellationToken = default)
+    {
+        if (string.IsNullOrWhiteSpace(rawQuery))
+        {
+            return Array.Empty<WordSearchResultDto>();
+        }
+
+        if (rawQuery.Length > MaxQueryLength)
+        {
+            throw new ArgumentException($"Query length cannot exceed {MaxQueryLength} characters.", nameof(rawQuery));
+        }
+
+        if (_textEmbeddingService == null || !_textEmbeddingService.IsAvailable)
+        {
+            return Array.Empty<WordSearchResultDto>();
+        }
+
+        var normalizedQuery = ArabicTextNormalizer.Normalize(rawQuery);
+        if (string.IsNullOrWhiteSpace(normalizedQuery))
+        {
+            return Array.Empty<WordSearchResultDto>();
+        }
+
+        cancellationToken.ThrowIfCancellationRequested();
+        var queryVector = _textEmbeddingService.GenerateEmbedding(normalizedQuery);
+        if (queryVector == null)
+        {
+            return Array.Empty<WordSearchResultDto>();
+        }
+
+        var vectorResults = await _wordRepository.SearchActiveByVectorAsync(
+            queryVector,
+            MaxResults,
+            cancellationToken);
+
+        return vectorResults
+            .Select(result => new WordSearchResultDto
+            {
+                Id = _publicIdEncoder.EncodeWordId(result.Id),
+                Headword = result.Headword,
+                Definition = result.Definition,
                 SimilarityScore = result.SimilarityScore
             })
             .ToList();

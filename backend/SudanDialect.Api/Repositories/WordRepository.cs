@@ -1,5 +1,6 @@
 using Microsoft.EntityFrameworkCore;
 using Npgsql.EntityFrameworkCore.PostgreSQL;
+using Pgvector.EntityFrameworkCore;
 using SudanDialect.Api.Data;
 using SudanDialect.Api.Dtos;
 using SudanDialect.Api.Interfaces.Repositories;
@@ -76,6 +77,7 @@ public sealed class WordRepository : IWordRepository
             {
                 Id = word.Id,
                 Headword = word.Headword,
+                Definition = word.Definition,
                 SimilarityScore =
                     EF.Functions.TrigramsSimilarity(word.NormalizedHeadword, normalizedQuery)
                 // EF.Functions.TrigramsSimilarity(word.NormalizedDefinition, normalizedQuery)
@@ -83,6 +85,31 @@ public sealed class WordRepository : IWordRepository
             .Where(result => result.SimilarityScore > 0.0)
             .OrderByDescending(result => result.SimilarityScore)
             .ThenBy(result => result.Headword)
+            .Take(take)
+            .ToListAsync(cancellationToken);
+    }
+
+    public async Task<IReadOnlyList<WordSearchCandidateDto>> SearchActiveByVectorAsync(
+        Pgvector.Vector queryVector,
+        int take,
+        CancellationToken cancellationToken = default)
+    {
+        if (take <= 0)
+        {
+            return Array.Empty<WordSearchCandidateDto>();
+        }
+
+        return await _dbContext.Words
+            .AsNoTracking()
+            .Where(word => word.IsActive && word.Embedding != null)
+            .OrderBy(word => word.Embedding!.CosineDistance(queryVector))
+            .Select(word => new WordSearchCandidateDto
+            {
+                Id = word.Id,
+                Headword = word.Headword,
+                Definition = word.Definition,
+                SimilarityScore = 1.0 - word.Embedding!.CosineDistance(queryVector)
+            })
             .Take(take)
             .ToListAsync(cancellationToken);
     }

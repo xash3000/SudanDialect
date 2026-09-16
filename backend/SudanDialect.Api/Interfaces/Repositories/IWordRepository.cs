@@ -19,6 +19,11 @@ public interface IWordRepository
         int take,
         CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<WordSearchCandidateDto>> SearchActiveByVectorAsync(
+        Pgvector.Vector queryVector,
+        int take,
+        CancellationToken cancellationToken = default);
+
     Task<Feedback> AddFeedbackAsync(Feedback feedback, CancellationToken cancellationToken = default);
 
     Task<WordSuggestion> AddSuggestionAsync(WordSuggestion suggestion, CancellationToken cancellationToken = default);

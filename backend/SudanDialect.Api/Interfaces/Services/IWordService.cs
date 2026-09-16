@@ -14,6 +14,8 @@ public interface IWordService
 
     Task<IReadOnlyList<WordSearchResultDto>> SearchAsync(string? rawQuery, CancellationToken cancellationToken = default);
 
+    Task<IReadOnlyList<WordSearchResultDto>> SemanticSearchAsync(string? rawQuery, CancellationToken cancellationToken = default);
+
     Task<bool> SubmitFeedbackAsync(
         string publicWordId,
         string? feedbackText,
