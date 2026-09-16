@@ -28,6 +28,22 @@
         <p>الكلمات غير النشطة</p>
         <strong>{{ metrics.inactiveWords }}</strong>
       </article>
+
+      @if (embeddingStatus(); as emb) {
+        <article class="metric-card embedding">
+          <div class="metric-card-header">
+            <p>التضمينات الدلالية</p>
+            <a routerLink="/admin/settings" class="manage-link">إدارة</a>
+          </div>
+          <strong>{{ emb.wordsWithEmbeddings }} / {{ emb.totalWords }}</strong>
+          <small class="metric-subtitle">
+            {{ emb.isEmbeddingServiceAvailable ? 'النموذج نشط' : 'النموذج غير متوفر' }}
+            @if (emb.wordsWithoutEmbeddings > 0) {
+              ({{ emb.wordsWithoutEmbeddings }} متبقي)
+            }
+          </small>
+        </article>
+      }
     </div>
   }
 </section>

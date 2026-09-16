@@ -3,6 +3,7 @@ import { HomePageComponent } from './pages/home-page/home-page.component';
 import { ContactPageComponent } from './pages/contact-page/contact-page.component';
 import { AboutPageComponent } from './pages/about-page/about-page.component';
 import { BrowsePageComponent } from './pages/browse-page/browse-page.component';
+import { SemanticSearchPageComponent } from './pages/semantic-search-page/semantic-search-page.component';
 import { NotFoundPageComponent } from './pages/not-found-page/not-found-page.component';
 
 export const routes: Routes = [
@@ -13,6 +14,10 @@ export const routes: Routes = [
   {
     path: 'word/:id',
     component: HomePageComponent
+  },
+  {
+    path: 'semantic-search',
+    component: SemanticSearchPageComponent
   },
   {
     path: 'browse',

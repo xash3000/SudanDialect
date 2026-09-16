@@ -19,10 +19,14 @@ public sealed class AdminWordService : IAdminWordService
     private static readonly Regex ArabicTextRegex = new("[\\u0600-\\u06FF]", RegexOptions.Compiled);
 
     private readonly IAdminWordRepository _adminWordRepository;
+    private readonly ITextEmbeddingService? _textEmbeddingService;
 
-    public AdminWordService(IAdminWordRepository adminWordRepository)
+    public AdminWordService(
+        IAdminWordRepository adminWordRepository,
+        ITextEmbeddingService? textEmbeddingService = null)
     {
         _adminWordRepository = adminWordRepository;
+        _textEmbeddingService = textEmbeddingService;
     }
 
     public Task<AdminDashboardMetricsDto> GetMetricsAsync(CancellationToken cancellationToken = default)
@@ -126,13 +130,25 @@ public sealed class AdminWordService : IAdminWordService
         var headword = ValidateArabicText(request.Headword, nameof(request.Headword), 200);
         var definition = ValidateArabicText(request.Definition, nameof(request.Definition), 4000);
 
+        var normalizedHeadword = ArabicTextNormalizer.Normalize(headword);
+        var normalizedDefinition = ArabicTextNormalizer.Normalize(definition);
+
+        Pgvector.Vector? embedding = null;
+        if (_textEmbeddingService != null && _textEmbeddingService.IsAvailable)
+        {
+            var textToEmbed = $"{normalizedHeadword} {normalizedDefinition}";
+            cancellationToken.ThrowIfCancellationRequested();
+            embedding = _textEmbeddingService.GenerateEmbedding(textToEmbed);
+        }
+
         var word = new Word
         {
             Headword = headword,
             Definition = definition,
-            NormalizedHeadword = ArabicTextNormalizer.Normalize(headword),
-            NormalizedDefinition = ArabicTextNormalizer.Normalize(definition),
-            IsActive = request.IsActive
+            NormalizedHeadword = normalizedHeadword,
+            NormalizedDefinition = normalizedDefinition,
+            IsActive = request.IsActive,
+            Embedding = embedding
         };
 
         return await _adminWordRepository.AddAsync(word, adminUserId, clientIp, userAgent, cancellationToken);
@@ -159,16 +175,28 @@ public sealed class AdminWordService : IAdminWordService
         var headword = ValidateArabicText(request.Headword, nameof(request.Headword), 200);
         var definition = ValidateArabicText(request.Definition, nameof(request.Definition), 4000);
 
+        var normalizedHeadword = ArabicTextNormalizer.Normalize(headword);
+        var normalizedDefinition = ArabicTextNormalizer.Normalize(definition);
+
+        Pgvector.Vector? embedding = null;
+        if (_textEmbeddingService != null && _textEmbeddingService.IsAvailable)
+        {
+            var textToEmbed = $"{normalizedHeadword} {normalizedDefinition}";
+            cancellationToken.ThrowIfCancellationRequested();
+            embedding = _textEmbeddingService.GenerateEmbedding(textToEmbed);
+        }
+
         return await _adminWordRepository.UpdateAsync(
             id,
             headword,
-            ArabicTextNormalizer.Normalize(headword),
+            normalizedHeadword,
             definition,
-            ArabicTextNormalizer.Normalize(definition),
+            normalizedDefinition,
             request.IsActive,
             adminUserId,
             clientIp,
             userAgent,
+            embedding,
             cancellationToken);
     }
 

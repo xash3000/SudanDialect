@@ -403,7 +403,7 @@ public class AdminWordServiceTests
     {
         var request = new AdminUpdateWordRequestDto { Headword = "تجربة", Definition = "تعريف", IsActive = true };
         var expected = new Word { Id = 1, Headword = "تجربة" };
-        _repositoryMock.Setup(r => r.UpdateAsync(1, "تجربة", It.IsAny<string>(), "تعريف", It.IsAny<string>(), true, "admin", "ip", "ua", It.IsAny<CancellationToken>()))
+        _repositoryMock.Setup(r => r.UpdateAsync(1, "تجربة", It.IsAny<string>(), "تعريف", It.IsAny<string>(), true, "admin", "ip", "ua", null, It.IsAny<CancellationToken>()))
             .ReturnsAsync(expected);
 
         var result = await _sut.UpdateAsync(1, request, "admin", "ip", "ua", TestContext.Current.CancellationToken);

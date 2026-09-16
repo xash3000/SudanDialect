@@ -1,0 +1,8 @@
+.git/
+.vscode/
+bin/
+obj/
+node_modules/
+onnx_models/
+**/onnx_models/
+*.onnx

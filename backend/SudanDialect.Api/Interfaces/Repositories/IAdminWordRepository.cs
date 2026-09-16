@@ -36,6 +36,7 @@ public interface IAdminWordRepository
         string adminUserId,
         string? clientIp,
         string? userAgent,
+        Pgvector.Vector? embedding = null,
         CancellationToken cancellationToken = default);
 
     Task<bool> SetInactiveAsync(

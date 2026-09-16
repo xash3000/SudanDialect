@@ -5,6 +5,9 @@ import { finalize } from 'rxjs';
 import { AdminAuthService } from '../../services/admin-auth.service';
 import { AdminManagedUser } from '../../models/admin-user.model';
 import { AdminUserService } from '../../services/admin-user.service';
+import { AdminWordService } from '../../services/admin-word.service';
+import { AdminToastService } from '../../services/admin-toast.service';
+import { EmbeddingBackfillResult, EmbeddingBackfillStatus } from '../../models/admin-word.model';
 
 interface ManagedUserViewModel extends AdminManagedUser {
   nextUsername: string;
@@ -22,9 +25,11 @@ interface ManagedUserViewModel extends AdminManagedUser {
 export class AdminSettingsPageComponent {
   private readonly authService = inject(AdminAuthService);
   private readonly adminUserService = inject(AdminUserService);
+  private readonly adminWordService = inject(AdminWordService);
+  private readonly toastService = inject(AdminToastService);
   private readonly formBuilder = inject(FormBuilder);
 
-  private readonly loadedUsers = signal(false);
+  private readonly loadedInitialData = signal(false);
 
   protected readonly username = computed(() => this.authService.session()?.username ?? '-');
   protected readonly roles = computed(() => this.authService.roles());
@@ -37,23 +42,38 @@ export class AdminSettingsPageComponent {
   protected readonly isCreatingUser = signal(false);
   protected readonly createErrorMessage = signal('');
 
+  protected readonly embeddingStatus = signal<EmbeddingBackfillStatus | null>(null);
+  protected readonly isLoadingEmbeddingStatus = signal(false);
+  protected readonly embeddingStatusError = signal('');
+  protected readonly isBackfilling = signal(false);
+  protected readonly backfillResult = signal<EmbeddingBackfillResult | null>(null);
+  protected readonly backfillError = signal('');
+  protected readonly backfillBatchSize = signal(50);
+  protected readonly backfillForceAll = signal(false);
+
+  protected readonly embeddingProgressPercentage = computed(() => {
+    const status = this.embeddingStatus();
+    if (!status || status.totalWords === 0) {
+      return 0;
+    }
+    return Math.round((status.wordsWithEmbeddings / status.totalWords) * 100);
+  });
+
   protected readonly createUserForm = this.formBuilder.nonNullable.group({
     username: ['', [Validators.required, Validators.minLength(3)]],
     password: ['', [Validators.required, Validators.minLength(8)]]
   });
 
   constructor() {
-    effect(
-      () => {
-        if (!this.isAdmin() || this.loadedUsers()) {
-          return;
-        }
+    effect(() => {
+      if (!this.isAdmin() || this.loadedInitialData()) {
+        return;
+      }
 
-        this.loadedUsers.set(true);
-        this.loadUsers();
-      },
-      { allowSignalWrites: true }
-    );
+      this.loadedInitialData.set(true);
+      this.loadUsers();
+      this.loadEmbeddingStatus();
+    });
   }
 
   protected createUser(): void {
@@ -230,6 +250,66 @@ export class AdminSettingsPageComponent {
 
   private sortUsers(users: ManagedUserViewModel[]): ManagedUserViewModel[] {
     return [...users].sort((left, right) => left.username.localeCompare(right.username));
+  }
+
+  protected loadEmbeddingStatus(): void {
+    if (!this.isAdmin()) {
+      return;
+    }
+
+    this.isLoadingEmbeddingStatus.set(true);
+    this.embeddingStatusError.set('');
+
+    this.adminWordService
+      .getEmbeddingStatus()
+      .pipe(finalize(() => this.isLoadingEmbeddingStatus.set(false)))
+      .subscribe({
+        next: (status) => {
+          this.embeddingStatus.set(status);
+        },
+        error: (error) => {
+          this.embeddingStatus.set(null);
+          this.embeddingStatusError.set(this.extractApiError(error, 'تعذر تحميل حالة خدمة التضمين.'));
+        }
+      });
+  }
+
+  protected triggerBackfill(): void {
+    if (!this.isAdmin()) {
+      return;
+    }
+
+    this.isBackfilling.set(true);
+    this.backfillError.set('');
+    this.backfillResult.set(null);
+
+    this.adminWordService
+      .backfillEmbeddings(this.backfillBatchSize(), this.backfillForceAll())
+      .pipe(finalize(() => this.isBackfilling.set(false)))
+      .subscribe({
+        next: (result) => {
+          this.backfillResult.set(result);
+          this.loadEmbeddingStatus();
+          this.toastService.showSuccess(`تمت معالجة ${result.backfilledCount} كلمة بنجاح.`);
+        },
+        error: (error) => {
+          const message = this.extractApiError(error, 'حدث خطأ أثناء معالجة التضمينات.');
+          this.backfillError.set(message);
+          this.toastService.showError(message);
+        }
+      });
+  }
+
+  protected updateBatchSize(value: string | number): void {
+    const parsed = typeof value === 'number' ? value : parseInt(value, 10);
+    if (!isNaN(parsed) && parsed > 0) {
+      this.backfillBatchSize.set(Math.min(parsed, 500));
+    }
+  }
+
+  protected toggleForceAll(event: Event): void {
+    const target = event.target as HTMLInputElement;
+    this.backfillForceAll.set(target.checked);
   }
 
   private extractApiError(error: unknown, fallbackMessage: string): string {

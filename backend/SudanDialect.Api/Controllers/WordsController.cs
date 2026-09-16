@@ -10,6 +10,8 @@ namespace SudanDialect.Api.Controllers;
 [Route("api/[controller]")]
 public sealed class WordsController : ControllerBase
 {
+    private const int MaxQueryLength = 200;
+
     private readonly IWordService _wordService;
 
     public WordsController(IWordService wordService)
@@ -43,7 +45,29 @@ public sealed class WordsController : ControllerBase
         [FromQuery] string? query,
         CancellationToken cancellationToken)
     {
+        if (!string.IsNullOrWhiteSpace(query) && query.Length > MaxQueryLength)
+        {
+            return BadRequest(TooLongQueryProblem());
+        }
+
         var results = await _wordService.SearchAsync(query, cancellationToken);
+        return Ok(results);
+    }
+
+    [HttpGet("semantic-search")]
+    [EnableRateLimiting(RateLimitPolicyNames.WordsSemanticSearchPerIp)]
+    [ProducesResponseType(typeof(IReadOnlyList<WordSearchResultDto>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<IReadOnlyList<WordSearchResultDto>>> SemanticSearch(
+        [FromQuery] string? query,
+        CancellationToken cancellationToken)
+    {
+        if (!string.IsNullOrWhiteSpace(query) && query.Length > MaxQueryLength)
+        {
+            return BadRequest(TooLongQueryProblem());
+        }
+
+        var results = await _wordService.SemanticSearchAsync(query, cancellationToken);
         return Ok(results);
     }
 
@@ -101,5 +125,17 @@ public sealed class WordsController : ControllerBase
             cancellationToken);
 
         return Ok(new { submitted });
+    }
+
+    private ProblemDetails TooLongQueryProblem()
+    {
+        const string message = "نص البحث طويل جداً. الحد الأقصى المسموح به هو 200 حرف.";
+        return new ProblemDetails
+        {
+            Status = StatusCodes.Status400BadRequest,
+            Title = "Bad Request",
+            Detail = message,
+            Extensions = { ["error"] = message }
+        };
     }
 }

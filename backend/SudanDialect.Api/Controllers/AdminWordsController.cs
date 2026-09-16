@@ -28,6 +28,38 @@ public sealed class AdminWordsController : ControllerBase
         return Ok(metrics);
     }
 
+    [HttpGet("embedding-status")]
+    [ProducesResponseType(typeof(EmbeddingBackfillStatusDto), StatusCodes.Status200OK)]
+    public async Task<ActionResult<EmbeddingBackfillStatusDto>> GetEmbeddingStatus(
+        [FromServices] IEmbeddingBackfillService backfillService,
+        CancellationToken cancellationToken)
+    {
+        var status = await backfillService.GetStatusAsync(cancellationToken);
+        return Ok(status);
+    }
+
+    [HttpPost("backfill-embeddings")]
+    [ProducesResponseType(typeof(EmbeddingBackfillResultDto), StatusCodes.Status200OK)]
+    public async Task<ActionResult<EmbeddingBackfillResultDto>> BackfillEmbeddings(
+        [FromServices] IEmbeddingBackfillService backfillService,
+        CancellationToken cancellationToken,
+        [FromQuery] int batchSize = 50,
+        [FromQuery] bool forceAll = false)
+    {
+        var result = await backfillService.BackfillEmbeddingsAsync(batchSize, forceAll, cancellationToken);
+        return Ok(result);
+    }
+
+    [HttpPost("reindex-embeddings")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    public async Task<IActionResult> ReindexEmbeddings(
+        [FromServices] IEmbeddingBackfillService backfillService,
+        CancellationToken cancellationToken)
+    {
+        await backfillService.ReindexAsync(cancellationToken);
+        return Ok(new { message = "Embedding index reindexed successfully." });
+    }
+
     [HttpGet("audit")]
     [ProducesResponseType(typeof(AdminWordEditAuditPageDto), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]

@@ -7,3 +7,5 @@ Dockerfile
 README.md
 *.user
 *.suo
+onnx_models/
+*.onnx

@@ -23,7 +23,7 @@ public sealed class WordsApiIntegrationTests : IAsyncLifetime
     private const string JwtSigningKeyEnvVarName = "Jwt__SigningKey";
     private const string PublicIdMinLengthEnvVarName = "PublicId__MinLength";
 
-    private readonly PostgreSqlContainer _dbContainer = new PostgreSqlBuilder("postgres:16-alpine")
+    private readonly PostgreSqlContainer _dbContainer = new PostgreSqlBuilder("pgvector/pgvector:pg18")
         .WithDatabase($"sudandialect_test_{Guid.NewGuid():N}")
         .WithUsername("postgres")
         .WithPassword("postgres")
@@ -660,7 +660,7 @@ public sealed class WordsApiIntegrationTests : IAsyncLifetime
     private static async Task ApplyMigrationsAsync(string connectionString)
     {
         var dbContextOptions = new DbContextOptionsBuilder<AppDbContext>()
-            .UseNpgsql(connectionString)
+            .UseNpgsql(connectionString, npgsqlOptions => npgsqlOptions.UseVector())
             .Options;
 
         await using var db = new AppDbContext(dbContextOptions);

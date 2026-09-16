@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:16-alpine
+    image: pgvector/pgvector:pg18
     container_name: sudan_dialect_db
     restart: unless-stopped
     environment:
@@ -32,7 +32,10 @@ services:
       - ASPNETCORE_FORWARDEDHEADERS_ENABLED=true
     ports:
       - "${API_PORT}:8080"
+    volumes:
+      - onnx_models:/app/onnx_models:ro
 
 volumes:
   postgres_data:
+  onnx_models:
 

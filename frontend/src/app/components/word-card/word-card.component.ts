@@ -5,6 +5,7 @@ import { faFacebook, faWhatsapp, faXTwitter } from '@fortawesome/free-brands-svg
 import { faCopy, faShareNodes, faTriangleExclamation } from '@fortawesome/free-solid-svg-icons';
 import { environment } from '../../../environments/environment';
 import { Word } from '../../models/word';
+import { WordSearchResult } from '../../models/word-search-result';
 import { WordSearchService } from '../../services/word-search.service';
 
 interface TurnstileApi {
@@ -80,7 +81,9 @@ export class WordCardComponent implements OnChanges, OnDestroy {
   private readonly ngZone = inject(NgZone);
   private readonly wordSearchService = inject(WordSearchService);
 
-  @Input({ required: true }) word!: Word;
+  @Input({ required: true }) word!: Word | WordSearchResult;
+  @Input() similarityScore?: number | null = null;
+  @Input() showSimilarity = false;
 
   protected definitionParts: DefinitionPart[] = [];
   protected isSharePopupOpen = false;
@@ -103,6 +106,26 @@ export class WordCardComponent implements OnChanges, OnDestroy {
   private turnstileWidgetId: string | null = null;
   private turnstileToken: string | null = null;
 
+  protected get similarityPercentage(): number | null {
+    const score = this.similarityScore ?? (this.word as WordSearchResult)?.similarityScore;
+    if (score === undefined || score === null || score <= 0) {
+      return null;
+    }
+    const pct = Math.round(score * 100);
+    return Math.min(100, Math.max(1, pct));
+  }
+
+  protected get relevanceClass(): string {
+    const score = this.similarityScore ?? (this.word as WordSearchResult)?.similarityScore ?? 0;
+    if (score >= 0.7) {
+      return 'relevance-high';
+    }
+    if (score >= 0.4) {
+      return 'relevance-medium';
+    }
+    return 'relevance-low';
+  }
+
   ngOnDestroy(): void {
     this.clearFeedback();
     this.closeFeedbackPopup();
@@ -110,7 +133,7 @@ export class WordCardComponent implements OnChanges, OnDestroy {
 
   ngOnChanges(changes: SimpleChanges): void {
     if (changes['word']) {
-      this.definitionParts = this.parseDefinition(this.word.definition);
+      this.definitionParts = this.parseDefinition(this.word?.definition ?? '');
       this.isSharePopupOpen = false;
       this.isFeedbackPopupOpen = false;
       this.clearFeedback();
