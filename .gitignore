@@ -36,3 +36,4 @@ artifacts/
 *.swo
 *.pdf
 *.docx
+*.onnx
