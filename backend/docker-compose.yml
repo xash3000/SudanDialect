@@ -1,6 +1,6 @@
 services:
   db:
-    image: pgvector/pgvector:pg18
+    image: pgvector/pgvector:pg16
     container_name: sudan_dialect_db
     restart: unless-stopped
     environment:
