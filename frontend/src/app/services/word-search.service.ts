@@ -3,6 +3,7 @@ import { Injectable, inject } from '@angular/core';
 import { Observable, of } from 'rxjs';
 import { map } from 'rxjs/operators';
 import { environment } from '../../environments/environment';
+import { MeaningSpaceResponse } from '../models/meaning-space-response';
 import { WordBrowsePage } from '../models/word-browse-page';
 import { WordSearchResult } from '../models/word-search-result';
 import { Word } from '../models/word';
@@ -37,6 +38,16 @@ export class WordSearchService {
     return this.http
       .get<WordSearchResult[]>(`${environment.apiBaseUrl}/api/words/semantic-search`, { params })
       .pipe(map((results) => this.sortBySimilarity(results)));
+  }
+
+  getVectorNeighbors(wordId: string, count = 20): Observable<MeaningSpaceResponse> {
+    const params = new HttpParams()
+      .set('wordId', wordId)
+      .set('count', count);
+    return this.http.get<MeaningSpaceResponse>(
+      `${environment.apiBaseUrl}/api/words/vector-neighbors`,
+      { params }
+    );
   }
 
   browseByLetter(letter: string, page: number, pageSize: number): Observable<WordBrowsePage> {

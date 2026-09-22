@@ -1,0 +1,44 @@
+<div class="meaning-space-container" dir="rtl">
+  <!-- Search bar overlay in top-right -->
+  <div class="space-search-overlay">
+    <app-search-bar [query]="searchQuery()" [results]="searchResults()" [isLoading]="isSearchLoading()"
+      [showDropdown]="showDropdown()" [hasRequestError]="hasSearchError()" [shouldShowNoResults]="shouldShowNoResults()"
+      (queryChanged)="onSearchInput($event)" (inputFocused)="onSearchFocus()" (inputBlurred)="onSearchBlur()"
+      (wordSelected)="onWordSelected($event)" (searchPressed)="onSearchPressed()" class="space-search-bar" />
+  </div>
+
+  <!-- Word card panel (shown on click) -->
+  @if (selectedNeighbor(); as neighbor) {
+  <div class="word-card-panel">
+    <button class="panel-close" (click)="clearSelectedNeighbor()" aria-label="إغلاق">✕</button>
+    <app-word-card [word]="neighbor" [showSimilarity]="!neighbor.isSelected"
+      [similarityScore]="neighbor.similarityScore" />
+  </div>
+  }
+
+  <!-- Space error -->
+  @if (spaceError()) {
+  <div class="space-error" role="alert">
+    <p>{{ spaceError() }}</p>
+  </div>
+  }
+
+  <!-- Loading overlay -->
+  @if (isSpaceLoading()) {
+  <div class="space-loading">
+    <div class="pulse-loader"></div>
+    <p>جارٍ تحميل فضاء المعاني...</p>
+  </div>
+  }
+
+  <!-- Welcome state (no word selected yet) -->
+  @if (!hasSelectedWord() && !isSpaceLoading()) {
+  <div class="space-welcome">
+    <h2 class="welcome-title">فضاء المعاني</h2>
+    <p class="welcome-desc">ابحث عن كلمة لرؤية أقرب الكلمات إليها في فضاء المعاني</p>
+  </div>
+  }
+
+  <!-- Three.js canvas container -->
+  <div #threeCanvas class="three-canvas"></div>
+</div>
