@@ -127,6 +127,32 @@ public sealed class WordsController : ControllerBase
         return Ok(new { submitted });
     }
 
+    [HttpGet("vector-neighbors")]
+    [EnableRateLimiting(RateLimitPolicyNames.WordsSearchPerIp)]
+    [ProducesResponseType(typeof(MeaningSpaceResponseDto), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<MeaningSpaceResponseDto>> GetVectorNeighbors(
+        [FromQuery] string? wordId,
+        CancellationToken cancellationToken,
+        [FromQuery] int count = 20)
+    {
+        if (string.IsNullOrWhiteSpace(wordId))
+        {
+            return BadRequest();
+        }
+
+        var clampedCount = Math.Clamp(count, 1, 50);
+
+        var result = await _wordService.GetVectorNeighborsAsync(wordId, clampedCount, cancellationToken);
+        if (result is null)
+        {
+            return NotFound();
+        }
+
+        return Ok(result);
+    }
+
     private ProblemDetails TooLongQueryProblem()
     {
         const string message = "نص البحث طويل جداً. الحد الأقصى المسموح به هو 200 حرف.";

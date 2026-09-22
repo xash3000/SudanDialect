@@ -25,17 +25,20 @@ public sealed class WordService : IWordService
     private readonly IWordRepository _wordRepository;
     private readonly IPublicIdEncoder _publicIdEncoder;
     private readonly ITurnstileVerificationService _turnstileVerificationService;
+    private readonly IPcaProjectionService _pcaProjectionService;
     private readonly ITextEmbeddingService? _textEmbeddingService;
 
     public WordService(
         IWordRepository wordRepository,
         IPublicIdEncoder publicIdEncoder,
         ITurnstileVerificationService turnstileVerificationService,
+        IPcaProjectionService pcaProjectionService,
         ITextEmbeddingService? textEmbeddingService = null)
     {
         _wordRepository = wordRepository;
         _publicIdEncoder = publicIdEncoder;
         _turnstileVerificationService = turnstileVerificationService;
+        _pcaProjectionService = pcaProjectionService;
         _textEmbeddingService = textEmbeddingService;
     }
 
@@ -332,6 +335,52 @@ public sealed class WordService : IWordService
             cancellationToken);
 
         return true;
+    }
+
+    public async Task<MeaningSpaceResponseDto?> GetVectorNeighborsAsync(
+        string publicWordId,
+        int count,
+        CancellationToken cancellationToken = default)
+    {
+        var wordId = DecodeWordPublicIdOrThrow(publicWordId);
+
+        var word = await _wordRepository.GetActiveByIdAsync(wordId, cancellationToken);
+        if (word?.Embedding == null)
+        {
+            return null;
+        }
+
+        var neighbors = await _wordRepository.GetNearestByVectorWithEmbeddingsAsync(
+            word.Embedding,
+            count + 1,
+            cancellationToken);
+
+        var projected = _pcaProjectionService.ProjectTo3D(
+            neighbors.Select(neighbor => neighbor.Word.Embedding!.ToArray()).ToList());
+
+        var resultWords = neighbors
+            .Zip(projected, (neighbor, coords) => ToVectorNeighborDto(neighbor, word.Id, coords))
+            .ToList();
+
+        return new MeaningSpaceResponseDto { Words = resultWords };
+    }
+
+    private WordVectorNeighborDto ToVectorNeighborDto(
+        (Word Word, double Similarity) neighbor,
+        int selectedWordId,
+        float[] coords)
+    {
+        return new WordVectorNeighborDto
+        {
+            Id = _publicIdEncoder.EncodeWordId(neighbor.Word.Id),
+            Headword = neighbor.Word.Headword,
+            Definition = neighbor.Word.Definition,
+            SimilarityScore = neighbor.Similarity,
+            IsSelected = neighbor.Word.Id == selectedWordId,
+            X = coords[0],
+            Y = coords[1],
+            Z = coords[2]
+        };
     }
 
     private int DecodeWordPublicIdOrThrow(string publicId)
