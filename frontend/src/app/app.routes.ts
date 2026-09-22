@@ -32,6 +32,16 @@ export const routes: Routes = [
     component: AboutPageComponent
   },
   {
+    path: 'meaning-space',
+    loadComponent: () => import('./pages/meaning-space-page/meaning-space-page.component')
+      .then(m => m.MeaningSpacePageComponent)
+  },
+  {
+    path: 'word-map',
+    redirectTo: 'meaning-space',
+    pathMatch: 'full'
+  },
+  {
     path: 'admin',
     loadChildren: () => import('./admin/admin.routes').then((module) => module.adminRoutes)
   },

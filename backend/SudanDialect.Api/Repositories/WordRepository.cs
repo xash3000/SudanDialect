@@ -114,6 +114,31 @@ public sealed class WordRepository : IWordRepository
             .ToListAsync(cancellationToken);
     }
 
+    public async Task<IReadOnlyList<(Word Word, double Similarity)>> GetNearestByVectorWithEmbeddingsAsync(
+        Pgvector.Vector queryVector,
+        int take,
+        CancellationToken cancellationToken = default)
+    {
+        if (take <= 0)
+        {
+            return Array.Empty<(Word, double)>();
+        }
+
+        var results = await _dbContext.Words
+            .AsNoTracking()
+            .Where(word => word.IsActive && word.Embedding != null)
+            .OrderBy(word => word.Embedding!.CosineDistance(queryVector))
+            .Take(take)
+            .Select(word => new
+            {
+                Word = word,
+                Similarity = 1.0 - word.Embedding!.CosineDistance(queryVector)
+            })
+            .ToListAsync(cancellationToken);
+
+        return results.Select(r => (r.Word, r.Similarity)).ToList();
+    }
+
     public async Task<Feedback> AddFeedbackAsync(Feedback feedback, CancellationToken cancellationToken = default)
     {
         _dbContext.Feedback.Add(feedback);

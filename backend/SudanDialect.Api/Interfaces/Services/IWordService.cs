@@ -30,4 +30,9 @@ public interface IWordService
         string? captchaToken,
         string? remoteIp,
         CancellationToken cancellationToken = default);
+
+    Task<MeaningSpaceResponseDto?> GetVectorNeighborsAsync(
+        string publicWordId,
+        int count,
+        CancellationToken cancellationToken = default);
 }

@@ -27,4 +27,9 @@ public interface IWordRepository
     Task<Feedback> AddFeedbackAsync(Feedback feedback, CancellationToken cancellationToken = default);
 
     Task<WordSuggestion> AddSuggestionAsync(WordSuggestion suggestion, CancellationToken cancellationToken = default);
+
+    Task<IReadOnlyList<(Word Word, double Similarity)>> GetNearestByVectorWithEmbeddingsAsync(
+        Pgvector.Vector queryVector,
+        int take,
+        CancellationToken cancellationToken = default);
 }

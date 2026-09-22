@@ -24,7 +24,8 @@ public class WordServiceTests
 
         _sut = new WordService(_wordRepositoryMock.Object,
                                _publicIdEncoderMock.Object,
-                               _turnstileVerificationServiceMock.Object);
+                               _turnstileVerificationServiceMock.Object,
+                               new PcaProjectionService());
     }
 
     [Fact]
@@ -323,5 +324,89 @@ public class WordServiceTests
         // act & assert
         await _sut.Invoking(s => s.SubmitSuggestionAsync("hw", "def", longEmail, "tok", "ip"))
             .Should().ThrowAsync<ArgumentException>();
+    }
+
+    [Fact]
+    public async Task GetVectorNeighborsAsync_ShouldReturnNull_WhenWordHasNoEmbedding()
+    {
+        // arrange
+        const string publicId = "abcd1234";
+        int decodedId = 1000;
+        _publicIdEncoderMock.Setup(p => p.TryDecodeWordId(publicId, out decodedId)).Returns(true);
+        _wordRepositoryMock.Setup(w => w.GetActiveByIdAsync(decodedId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Word { Id = decodedId, Embedding = null });
+
+        // act
+        var result = await _sut.GetVectorNeighborsAsync(publicId, 10, TestContext.Current.CancellationToken);
+
+        // assert
+        result.Should().BeNull();
+    }
+
+    [Fact]
+    public async Task GetVectorNeighborsAsync_ShouldReturnEmptyWords_WhenNoNeighborsFound()
+    {
+        // arrange
+        const string publicId = "abcd1234";
+        int decodedId = 1000;
+        _publicIdEncoderMock.Setup(p => p.TryDecodeWordId(publicId, out decodedId)).Returns(true);
+        _wordRepositoryMock.Setup(w => w.GetActiveByIdAsync(decodedId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Word { Id = decodedId, Embedding = new Pgvector.Vector(new[] { 1f, 0f, 0f }) });
+        _wordRepositoryMock.Setup(w => w.GetNearestByVectorWithEmbeddingsAsync(It.IsAny<Pgvector.Vector>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<(Word Word, double Similarity)>());
+
+        // act
+        var result = await _sut.GetVectorNeighborsAsync(publicId, 10, TestContext.Current.CancellationToken);
+
+        // assert
+        result.Should().NotBeNull();
+        result!.Words.Should().BeEmpty();
+    }
+
+    [Fact]
+    public async Task GetVectorNeighborsAsync_ShouldProjectAndMapNeighbors_WhenEmbeddingsExist()
+    {
+        // arrange
+        const string publicId = "abcd1234";
+        int decodedId = 1000;
+        _publicIdEncoderMock.Setup(p => p.TryDecodeWordId(publicId, out decodedId)).Returns(true);
+        _publicIdEncoderMock.Setup(p => p.EncodeWordId(1000)).Returns("enc-1000");
+        _publicIdEncoderMock.Setup(p => p.EncodeWordId(2000)).Returns("enc-2000");
+
+        _wordRepositoryMock.Setup(w => w.GetActiveByIdAsync(decodedId, It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Word { Id = 1000, Embedding = new Pgvector.Vector(new[] { 1f, 0f, 0f }) });
+
+        var neighbors = new List<(Word Word, double Similarity)>
+        {
+            (new Word { Id = 1000, Headword = "ذاتي", Definition = "معنى ذاتي", Embedding = new Pgvector.Vector(new[] { 1f, 0f, 0f }) }, 1.0),
+            (new Word { Id = 2000, Headword = "آخر", Definition = "معنى آخر", Embedding = new Pgvector.Vector(new[] { 0f, 1f, 0f }) }, 0.5)
+        };
+        _wordRepositoryMock.Setup(w => w.GetNearestByVectorWithEmbeddingsAsync(It.IsAny<Pgvector.Vector>(), It.IsAny<int>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(neighbors);
+
+        // act
+        var result = await _sut.GetVectorNeighborsAsync(publicId, 10, TestContext.Current.CancellationToken);
+
+        // assert - two points centered on the first two axes project onto a single line with |X| = 1/sqrt(2) and Y = Z = 0
+        result.Should().NotBeNull();
+        result!.Words.Should().HaveCount(2);
+
+        var selected = result.Words[0];
+        selected.Id.Should().Be("enc-1000");
+        selected.Headword.Should().Be("ذاتي");
+        selected.SimilarityScore.Should().Be(1.0);
+        selected.IsSelected.Should().BeTrue();
+        Math.Abs(selected.X).Should().BeApproximately((float)(1.0 / Math.Sqrt(2)), 1e-4f);
+        selected.Y.Should().BeApproximately(0f, 1e-5f);
+        selected.Z.Should().Be(0f);
+
+        var other = result.Words[1];
+        other.Id.Should().Be("enc-2000");
+        other.Headword.Should().Be("آخر");
+        other.SimilarityScore.Should().Be(0.5);
+        other.IsSelected.Should().BeFalse();
+        other.X.Should().BeApproximately(-selected.X, 1e-4f);
+        other.Y.Should().BeApproximately(0f, 1e-5f);
+        other.Z.Should().Be(0f);
     }
 }

@@ -176,6 +176,7 @@ builder.Services.AddHostedService<EmbeddingWarmupService>();
 builder.Services.AddScoped<IEmbeddingBackfillService, EmbeddingBackfillService>();
 builder.Services.AddScoped<IWordRepository, WordRepository>();
 builder.Services.AddSingleton<IPublicIdEncoder, SqidsPublicIdEncoder>();
+builder.Services.AddSingleton<IPcaProjectionService, PcaProjectionService>();
 builder.Services.AddScoped<IWordService, WordService>();
 builder.Services.AddHttpClient<ITurnstileVerificationService, TurnstileVerificationService>();
 builder.Services.AddScoped<IAdminWordRepository, AdminWordRepository>();
