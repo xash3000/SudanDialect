@@ -1,3 +1,5 @@
+
+
 ![logo](./frontend/public/favicon.ico)
 
 # [sudandialect.com](https://sudandialect.com)
@@ -58,6 +60,7 @@ POSTGRES_DB=sudandialect
 API_PORT=5038
 JWT_SIGNING_KEY=replace-with-a-long-random-secret
 TURNSTILE_SECRET_KEY=replace-with-your-turnstile-secret
+PUBLIC_ID_MIN_LENGTH=8
 ADMIN_USER_1=admin
 ADMIN_PASS_1=replace-with-strong-password
 FRONTEND_URL=http://localhost:4200
